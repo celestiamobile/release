@@ -18,4 +18,27 @@ steps:
   displayName: 'Download macOS Sideload Build'
 
 - script: |
-    tree $(System.ArtifactsDirectory)
+    mv $(System.ArtifactsDirectory)/macosx-developerID-openGL-product/App.zip $(System.DefaultWorkingDirectory)/Celestia_$(RELEASE_VERSION)_macOS.zip
+  displayName: 'Rename File'
+
+- script: |
+    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia develop | cut -f 1)
+    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization develop | cut -f 1)
+    CELESTIA_CORE_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaCore develop | cut -f 1)
+    echo "https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT\nhttps://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT\nhttps://github.com/celestiamobile/CelestiaCore/commit/$CELESTIA_CORE_REPO_COMMIT" >> release-notes-apple.txt
+  displayName: 'Update Release Notes'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'GithubAuth'
+    repositoryName: 'celestiamobile/MobileCelestia'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    tagPattern: '$(RELEASE_TAG)'
+    title: '$(RELEASE_VERSION)'
+    releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-apple.txt'
+    isDraft: true
+    addChangeLog: false
+    assets: '$(System.DefaultWorkingDirectory)/Celestia_$(RELEASE_VERSION)_macOS.zip'
+  displayName: 'Release'
