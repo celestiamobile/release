@@ -1,0 +1,49 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'specific'
+    project: '9f9dcde1-dcba-4537-8214-71c8a03b99a0'
+    pipeline: '9'
+    buildVersionToDownload: 'specific'
+    buildId: '$(BUILD_ID)'
+    downloadType: 'single'
+    artifactName: 'apk'
+    downloadPath: '$(System.ArtifactsDirectory)'
+  displayName: 'Download Sideload Build'
+
+- script: |
+    mv $(System.ArtifactsDirectory)/apk/app-sideload-release-unsigned.apk $(System.DefaultWorkingDirectory)/celestia-$(RELEASE_VERSION)-rc1.apk
+  displayName: 'Rename File'
+
+- script: |
+    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia develop | cut -f 1)
+    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization develop | cut -f 1)
+    echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-android.txt
+    echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-android.txt
+  displayName: 'Update Release Notes'
+
+- script: |
+    ANDROID_CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/AndroidCelestia develop | cut -f 1)
+    echo "##vso[task.setvariable variable=CommitHash]$ANDROID_CELESTIA_REPO_COMMIT"
+  displayName: 'Set Commit Hash Variable'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'GithubAuth'
+    repositoryName: 'celestiamobile/AndroidCelestia'
+    action: 'create'
+    target: $(CommitHash)
+    tagSource: 'userSpecifiedTag'
+    tag: '$(RELEASE_TAG)'
+    title: '$(RELEASE_VERSION)'
+    releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-android.txt'
+    isDraft: true
+    addChangeLog: false
+    assets: '$(System.DefaultWorkingDirectory)/celestia-$(RELEASE_VERSION)-rc1.apk'
+  displayName: 'Release'
