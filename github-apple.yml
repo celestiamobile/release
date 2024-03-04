@@ -25,17 +25,24 @@ steps:
     CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia develop | cut -f 1)
     CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization develop | cut -f 1)
     CELESTIA_CORE_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaCore develop | cut -f 1)
-    echo "https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT\nhttps://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT\nhttps://github.com/celestiamobile/CelestiaCore/commit/$CELESTIA_CORE_REPO_COMMIT" >> release-notes-apple.txt
+    echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-apple.txt
+    echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-apple.txt
+    echo https://github.com/celestiamobile/CelestiaCore/commit/$CELESTIA_CORE_REPO_COMMIT >> release-notes-apple.txt
   displayName: 'Update Release Notes'
+
+- script: |
+    MOBILE_CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/MobileCelestia develop | cut -f 1)
+    echo "##vso[task.setvariable variable=CommitHash]$MOBILE_CELESTIA_REPO_COMMIT"
+  displayName: 'Set Commit Hash Variable'
 
 - task: GitHubRelease@1
   inputs:
     gitHubConnection: 'GithubAuth'
     repositoryName: 'celestiamobile/MobileCelestia'
     action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'gitTag'
-    tagPattern: '$(RELEASE_TAG)'
+    target: $(CommitHash)
+    tagSource: 'userSpecifiedTag'
+    tag: '$(RELEASE_TAG)'
     title: '$(RELEASE_VERSION)'
     releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-apple.txt'
     isDraft: true
