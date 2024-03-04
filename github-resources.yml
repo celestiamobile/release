@@ -1,0 +1,60 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'specific'
+    project: '9f9dcde1-dcba-4537-8214-71c8a03b99a0'
+    pipeline: '9'
+    buildVersionToDownload: 'specific'
+    buildId: '$(BUILD_ID)'
+    downloadType: 'single'
+    artifactName: 'apk'
+    downloadPath: '$(System.ArtifactsDirectory)'
+  displayName: 'Download Sideload Build'
+
+- task: ExtractFiles@1
+  inputs:
+    archiveFilePatterns: '$(System.ArtifactsDirectory)/apk/app-sideload-release-unsigned.apk'
+    destinationFolder: '$(System.DefaultWorkingDirectory)'
+    cleanDestinationFolder: false
+    overwriteExistingFiles: false
+  displayName: 'Extract CelestiaResources'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/assets/CelestiaResources'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaResources$(RELEASE_VERSION).zip'
+    replaceExistingArchive: true
+  displayName: 'Create Archive'
+
+- script: |
+    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization develop | cut -f 1)
+    echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-resources.txt
+  displayName: 'Update Release Notes'
+
+- script: |
+    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia develop | cut -f 1)
+    echo "##vso[task.setvariable variable=CommitHash]$CELESTIA_REPO_COMMIT"
+  displayName: 'Set Commit Hash Variable'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'GithubAuth'
+    repositoryName: 'celestiamobile/Celestia'
+    action: 'create'
+    target: $(CommitHash)
+    tagSource: 'userSpecifiedTag'
+    tag: '$(RELEASE_TAG)'
+    title: '$(RELEASE_VERSION)'
+    releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-resources.txt'
+    isDraft: true
+    addChangeLog: false
+    assets: '$(System.DefaultWorkingDirectory)/CelestiaResources$(RELEASE_VERSION).zip'
+  displayName: 'Release'
