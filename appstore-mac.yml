@@ -1,0 +1,36 @@
+resources:
+  repositories:
+  - repository: MobileCelestia
+    type: github
+    endpoint: GithubAuth
+    name: celestiamobile/MobileCelestia
+
+trigger: none
+
+pool:
+  vmImage: macos-13
+
+steps:
+- checkout: MobileCelestia
+  fetchDepth: 0
+- checkout: self
+
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'specific'
+    project: '9f9dcde1-dcba-4537-8214-71c8a03b99a0'
+    pipeline: '10'
+    buildVersionToDownload: 'specific'
+    buildId: '$(BUILD_ID)'
+    downloadType: 'single'
+    artifactName: 'macosx-appStore-openGL-product'
+    downloadPath: '$(System.ArtifactsDirectory)'
+  displayName: 'Download Build'
+
+- script: |
+    cd MobileCelestia
+    git checkout $(BRANCH)
+    cd fastlane/mac
+    CHANGELOG=$(cat $(System.DefaultWorkingDirectory)/upload-release/release-notes-apple.txt)
+    FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=$(FASTLANE_PASSWORD) fastlane pilot upload $(System.ArtifactsDirectory)/macosx-appStore-openGL-product/Celestia.pkg --submit_beta_review --username $(FASTLANE_USERNAME) --changelog "$CHANGELOG"
+  displayName: 'Upload'
