@@ -1,0 +1,44 @@
+resources:
+  repositories:
+  - repository: AndroidCelestia
+    type: github
+    endpoint: GithubAuth
+    name: celestiamobile/AndroidCelestia
+
+trigger: none
+
+pool:
+  vmImage: macos-13
+
+steps:
+- checkout: AndroidCelestia
+  fetchDepth: 0
+- checkout: self
+
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'specific'
+    project: '9f9dcde1-dcba-4537-8214-71c8a03b99a0'
+    pipeline: '9'
+    buildVersionToDownload: 'specific'
+    buildId: '$(BUILD_ID)'
+    downloadType: 'single'
+    artifactName: 'aab'
+    downloadPath: '$(System.ArtifactsDirectory)'
+  displayName: 'Download Build'
+
+- task: DownloadSecureFile@1
+  name: jsonKey
+  displayName: 'Download JSON Key'
+  inputs:
+    secureFile: 'fastlane_playkey.json'
+
+- script: |
+    BUILD=$(curl -s "https://raw.githubusercontent.com/celestiamobile/AndroidCelestia/$(BRANCH)/app/src/main/AndroidManifest.xml" | awk -F'"' '/android.versionCode=/ {print $2; exit}')
+    cd AndroidCelestia
+    git checkout $(BRANCH)
+    cd app/src/play/fastlane
+    mkdir -p metadata/en-US/changelogs
+    mv $(System.DefaultWorkingDirectory)/upload-release/release-notes-android.txt metadata/en-US/changelogs/$BUILD.txt
+    fastlane supply --aab $(System.ArtifactsDirectory)/aab/app-play-release.aab --track beta --json_key $(jsonKey.secureFilePath) --package_name space.celestia.mobilecelestia --skip_upload_image --skip_upload_metadata --skip_upload_screenshots --skip_upload_apk
+  displayName: 'Upload'
