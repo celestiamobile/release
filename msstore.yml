@@ -1,0 +1,12 @@
+trigger: none
+
+pool:
+  vmImage: 'windows-2022'
+
+steps:
+
+- task: UseMSStoreCLI@0
+  displayName: Setup Microsoft Store Developer CLI
+
+- script: msstore reconfigure --tenantId $(PARTNER_CENTER_TENANT_ID) --sellerId $(PARTNER_CENTER_SELLER_ID) --clientId $(PARTNER_CENTER_CLIENT_ID) --clientSecret $(PARTNER_CENTER_CLIENT_SECRET)
+  displayName: Configure Microsoft Store Developer CLI
