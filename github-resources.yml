@@ -17,6 +17,13 @@ steps:
     downloadPath: '$(System.ArtifactsDirectory)'
   displayName: 'Download Sideload Build'
 
+- script: |
+    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/AndroidCelestia/$(BRANCH)/app/src/main/AndroidManifest.xml" | awk -F'"' '/android.versionName=/ {print $2; exit}')
+    echo "##vso[task.setvariable variable=Version]$VERSION"
+    TAG=$(echo $VERSION | sed 's/\./_/g')_rc$(RC)
+    echo "##vso[task.setvariable variable=Tag]$TAG"
+  displayName: 'Set Version Variable'
+
 - task: ExtractFiles@1
   inputs:
     archiveFilePatterns: '$(System.ArtifactsDirectory)/apk/app-sideload-release-unsigned.apk'
@@ -30,17 +37,19 @@ steps:
     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/assets/CelestiaResources'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaResources$(RELEASE_VERSION).zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaResources$(Version).zip'
     replaceExistingArchive: true
   displayName: 'Create Archive'
 
 - script: |
-    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization develop | cut -f 1)
+    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization $(BRANCH) | cut -f 1)
+    CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/jobs/build.yml" | awk -F"'" '/contentCommitHash/ {print $2}')
     echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-resources.txt
+    echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-resources.txt
   displayName: 'Update Release Notes'
 
 - script: |
-    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia develop | cut -f 1)
+    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia $(BRANCH) | cut -f 1)
     echo "##vso[task.setvariable variable=CommitHash]$CELESTIA_REPO_COMMIT"
   displayName: 'Set Commit Hash Variable'
 
@@ -51,10 +60,10 @@ steps:
     action: 'create'
     target: $(CommitHash)
     tagSource: 'userSpecifiedTag'
-    tag: '$(RELEASE_TAG)'
-    title: '$(RELEASE_VERSION)'
+    tag: '$(Tag)'
+    title: '$(Version)'
     releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-resources.txt'
     isDraft: true
     addChangeLog: false
-    assets: '$(System.DefaultWorkingDirectory)/CelestiaResources$(RELEASE_VERSION).zip'
+    assets: '$(System.DefaultWorkingDirectory)/CelestiaResources$(Version).zip'
   displayName: 'Release'

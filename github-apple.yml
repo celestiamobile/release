@@ -18,20 +18,29 @@ steps:
   displayName: 'Download macOS Sideload Build'
 
 - script: |
-    mv $(System.ArtifactsDirectory)/macosx-developerID-openGL-product/App.zip $(System.DefaultWorkingDirectory)/Celestia_$(RELEASE_VERSION)_macOS.zip
+    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/MobileCelestia/develop/MobileCelestia.xcodeproj/project.pbxproj" | awk -F'[=; ]' '/SHARED_BUILD_VERSION/{print $4; exit}')
+    echo "##vso[task.setvariable variable=Version]$VERSION"
+    TAG=$(echo $VERSION | sed 's/\./_/g')_rc$(RC)
+    echo "##vso[task.setvariable variable=Tag]$TAG"
+  displayName: 'Set Version Variable'
+
+- script: |
+    mv $(System.ArtifactsDirectory)/macosx-developerID-openGL-product/App.zip $(System.DefaultWorkingDirectory)/Celestia_$(Version)_macOS.zip
   displayName: 'Rename File'
 
 - script: |
-    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia develop | cut -f 1)
-    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization develop | cut -f 1)
-    CELESTIA_CORE_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaCore develop | cut -f 1)
+    CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia $(BRANCH) | cut -f 1)
+    CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization $(BRANCH) | cut -f 1)
+    CELESTIA_CORE_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaCore $(BRANCH) | cut -f 1)
+    CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/jobs/build.yml" | awk -F"'" '/contentCommitHash/ {print $2}')
     echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-apple.txt
     echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-apple.txt
     echo https://github.com/celestiamobile/CelestiaCore/commit/$CELESTIA_CORE_REPO_COMMIT >> release-notes-apple.txt
+    echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-apple.txt
   displayName: 'Update Release Notes'
 
 - script: |
-    MOBILE_CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/MobileCelestia develop | cut -f 1)
+    MOBILE_CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/MobileCelestia $(BRANCH) | cut -f 1)
     echo "##vso[task.setvariable variable=CommitHash]$MOBILE_CELESTIA_REPO_COMMIT"
   displayName: 'Set Commit Hash Variable'
 
@@ -42,10 +51,10 @@ steps:
     action: 'create'
     target: $(CommitHash)
     tagSource: 'userSpecifiedTag'
-    tag: '$(RELEASE_TAG)'
-    title: '$(RELEASE_VERSION)'
+    tag: '$(Tag)'
+    title: '$(Version)'
     releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-apple.txt'
     isDraft: true
     addChangeLog: false
-    assets: '$(System.DefaultWorkingDirectory)/Celestia_$(RELEASE_VERSION)_macOS.zip'
+    assets: '$(System.DefaultWorkingDirectory)/Celestia_$(Version)_macOS.zip'
   displayName: 'Release'
