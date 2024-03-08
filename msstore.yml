@@ -45,28 +45,33 @@ steps:
     $Cred = New-Object System.Management.Automation.PSCredential($user, $password)
     Set-StoreBrokerAuthentication -TenantId $Env:PARTNER_CENTER_TENANT_ID -Credential $Cred
     $appId = $Env:PARTNER_CENTER_APP_ID
-    # Create submission package
-    New-SubmissionPackage -ConfigPath CelestiaUWP\CelestiaUWP\metadata\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaUWP_$(Version)_x64_bundle.msixupload" -OutPath out -OutName package
-    # Create new submission
-    $sub = New-ApplicationSubmission -AppId $appId -Force
-    # Parse submission meta
-    $json = (Get-Content out\package.json -Encoding UTF8) | ConvertFrom-Json
-    # Delete old packages
-    foreach ($package in $sub.applicationPackages) {
-      $package.fileStatus = "PendingDelete"
-    }
-    # Add new packages
-    $sub.applicationPackages += $json.applicationPackages
+
     # Read release notes
     $releaseNotes = Get-Content upload-release\release-notes-uwp.txt -Raw
-    # Add release notes
-    $sub.listings."en-us".baseListing.releaseNotes = $releaseNotes
-    # Upload submission meta
-    Set-ApplicationSubmission -AppId $appId -UpdatedSubmission $sub
-    # Upload submission package
-    Set-SubmissionPackage -PackagePath out\package.zip -UploadUrl ($sub.fileUploadUrl)
-    # Commit changes
-    Complete-ApplicationSubmission -AppId $appId -SubmissionId ($sub.id)
+
+    $folders = Get-ChildItem -Recurse -Directory -Path CelestiaUWP\CelestiaUWP\metadata
+    foreach ($folder in $folders) {
+      # Replace RELEASE_NOTES_PLACEHOLDER in PDP.xml with release notes
+      $pdpPath = Join-Path $folder.FullName "PDP.xml"
+      (Get-Content $pdpPath) -replace "RELEASE_NOTES_PLACEHOLDER", $releaseNotes | Set-Content $pdpPath
+      (Get-Content $pdpPath) -replace "RELEASE_VERSION_PLACEHOLDER", "$(Version)" | Set-Content $pdpPath
+
+      if ($folder.Name -eq "en") {
+        continue
+      }
+      
+      # Copy screenshot files from en
+      Copy-Item -Path "CelestiaUWP\CelestiaUWP\metadata\en\Output*.png" -Destination $folder.FullName -Force
+    }
+
+    # Create directory for update
+    mkdir -Path update
+    Move-Item -Path "CelestiaUWP\CelestiaUWP\metadata" -Destination update\$(Version) -Force
+
+    # Create submission package
+    New-SubmissionPackage -ConfigPath update\$(Version)\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaUWP_$(Version)_x64_bundle.msixupload" -PDPRootPath update -ImagesRootPath update -Release $(Version) -OutPath out -OutName package
+    # Create new submission
+    Update-ApplicationSubmission -AppId $appId -SubmissionDataPath out\package.json -PackagePath out\package.zip -AutoCommit -ReplacePackages -UpdateListings -Force
   env:
     PARTNER_CENTER_CLIENT_ID: $(PARTNER_CENTER_CLIENT_ID)
     PARTNER_CENTER_CLIENT_SECRET: $(PARTNER_CENTER_CLIENT_SECRET)
