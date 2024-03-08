@@ -27,7 +27,7 @@ steps:
     downloadPath: '$(System.ArtifactsDirectory)'
   displayName: 'Download Build'
 
-- script: |
+- bash: |
     VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/CelestiaUWP/Package.appxmanifest" | awk -F'"' '/Version=/ {print $2; exit}')
     echo "##vso[task.setvariable variable=Version]$VERSION"
     cd CelestiaUWP
@@ -46,5 +46,30 @@ steps:
     Set-StoreBrokerAuthentication -TenantId $Env:PARTNER_CENTER_TENANT_ID -Credential $Cred
     $appId = $Env:PARTNER_CENTER_APP_ID
     # Create submission package
-    New-SubmissionPackage -ConfigPath CelestiaUWP\CelestiaUWP\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaUWP_$Env:Version_x64_bundle.msixupload" -OutPath out -OutName package
+    New-SubmissionPackage -ConfigPath CelestiaUWP\CelestiaUWP\metadata\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaUWP_$(Version)_x64_bundle.msixupload" -OutPath out -OutName package
+    # Create new submission
+    $sub = New-ApplicationSubmission -AppId $appId -Force
+    # Parse submission meta
+    $json = (Get-Content out\package.json -Encoding UTF8) | ConvertFrom-Json
+    # Delete old packages
+    foreach ($package in $sub.applicationPackages) {
+      $package.fileStatus = "PendingDelete"
+    }
+    # Add new packages
+    $sub.applicationPackages += $json.applicationPackages
+    # Read release notes
+    $releaseNotes = Get-Content upload-release\release-notes-uwp.txt -Raw
+    # Add release notes
+    $sub.listings."en-us".baseListing.releaseNotes = $releaseNotes
+    # Upload submission meta
+    Set-ApplicationSubmission -AppId $appId -UpdatedSubmission $sub
+    # Upload submission package
+    Set-SubmissionPackage -PackagePath out\package.zip -UploadUrl ($sub.fileUploadUrl)
+    # Commit changes
+    Complete-ApplicationSubmission -AppId $appId -SubmissionId ($sub.id)
+  env:
+    PARTNER_CENTER_CLIENT_ID: $(PARTNER_CENTER_CLIENT_ID)
+    PARTNER_CENTER_CLIENT_SECRET: $(PARTNER_CENTER_CLIENT_SECRET)
+    PARTNER_CENTER_TENANT_ID: $(PARTNER_CENTER_TENANT_ID)
+    PARTNER_CENTER_APP_ID: $(PARTNER_CENTER_APP_ID)
   displayName: Upload Release
