@@ -1,12 +1,50 @@
+resources:
+  repositories:
+  - repository: CelestiaUWP
+    type: github
+    endpoint: GithubAuth
+    name: celestiamobile/CelestiaUWP
+
 trigger: none
 
 pool:
   vmImage: 'windows-2022'
 
 steps:
+- checkout: CelestiaUWP
+  fetchDepth: 0
+- checkout: self
 
-- task: UseMSStoreCLI@0
-  displayName: Setup Microsoft Store Developer CLI
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'specific'
+    project: '9f9dcde1-dcba-4537-8214-71c8a03b99a0'
+    pipeline: '8'
+    buildVersionToDownload: 'specific'
+    buildId: '$(BUILD_ID)'
+    downloadType: 'single'
+    artifactName: 'msixupload'
+    downloadPath: '$(System.ArtifactsDirectory)'
+  displayName: 'Download Build'
 
-- script: msstore reconfigure --tenantId $(PARTNER_CENTER_TENANT_ID) --sellerId $(PARTNER_CENTER_SELLER_ID) --clientId $(PARTNER_CENTER_CLIENT_ID) --clientSecret $(PARTNER_CENTER_CLIENT_SECRET)
-  displayName: Configure Microsoft Store Developer CLI
+- script: |
+    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/CelestiaUWP/Package.appxmanifest" | awk -F'"' '/Version=/ {print $2; exit}')
+    echo "##vso[task.setvariable variable=Version]$VERSION"
+    cd CelestiaUWP
+    git checkout $(BRANCH)
+  displayName: 'Set Version Variable'
+
+- pwsh: |
+    Install-Module -Name StoreBroker -Force
+  displayName: Setup Microsoft Store CLI
+
+- pwsh: |
+    # Login
+    $user = $Env:PARTNER_CENTER_CLIENT_ID
+    $password = ConvertTo-SecureString $Env:PARTNER_CENTER_CLIENT_SECRET -AsPlainText -Force
+    $Cred = New-Object System.Management.Automation.PSCredential($user, $password)
+    Set-StoreBrokerAuthentication -TenantId $Env:PARTNER_CENTER_TENANT_ID -Credential $Cred
+    $appId = $Env:PARTNER_CENTER_APP_ID
+    # Create submission package
+    New-SubmissionPackage -ConfigPath CelestiaUWP\CelestiaUWP\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaUWP_$Env:Version_x64_bundle.msixupload" -OutPath out -OutName package
+  displayName: Upload Release
