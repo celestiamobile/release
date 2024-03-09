@@ -27,10 +27,18 @@ steps:
     downloadPath: '$(System.ArtifactsDirectory)'
   displayName: 'Download Build'
 
+- task: DownloadSecureFile@1
+  name: appStoreConnectKey
+  displayName: 'Download JSON Key'
+  inputs:
+    secureFile: 'appstore-connect-key.json'
+
 - script: |
     cd MobileCelestia
     git checkout $(BRANCH)
     cd fastlane/mac
     CHANGELOG=$(cat $(System.DefaultWorkingDirectory)/upload-release/release-notes-apple.txt)
-    FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=$(FASTLANE_PASSWORD) fastlane pilot upload $(System.ArtifactsDirectory)/macosx-appStore-openGL-product/Celestia.pkg --submit_beta_review --username $(FASTLANE_USERNAME) --changelog "$CHANGELOG"
+    FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=$CI_FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD fastlane pilot upload --pkg $(System.ArtifactsDirectory)/macosx-appStore-openGL-product/Celestia.pkg --submit_beta_review --api_key_path $(appStoreConnectKey.secureFilePath) --changelog "$CHANGELOG"
+  env:
+    CI_FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: $(FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD)
   displayName: 'Upload'
