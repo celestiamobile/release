@@ -1,1 +1,1 @@
-Update exoplanets files
+Update data and fix bugs
