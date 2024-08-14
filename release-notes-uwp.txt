@@ -1,1 +1,2 @@
-Update data and fix bugs
+1. Add settings to enable/disable thumbstick input
+2. Update data and fix bugs
