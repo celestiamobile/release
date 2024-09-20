@@ -1,2 +1,3 @@
 1. Add settings to enable/disable thumbstick input
-2. Update data and fix bugs
+2. Add new app icons
+3. Update data and fix bugs
