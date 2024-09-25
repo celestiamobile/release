@@ -18,7 +18,7 @@ steps:
   displayName: 'Download Sideload Build'
 
 - script: |
-    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/CelestiaUWP/Package.appxmanifest" | awk -F'"' '/Version=/ {print $2; exit}')
+    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/CelestiaWinUI/Package.appxmanifest" | awk -F'"' '/Version=/ {print $2; exit}')
     echo "##vso[task.setvariable variable=Version]$VERSION"
   displayName: 'Set Version Variable'
 
