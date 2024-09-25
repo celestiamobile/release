@@ -70,8 +70,25 @@ steps:
 
     # Create submission package
     New-SubmissionPackage -ConfigPath update\$(Version)\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaUWP_$(Version)_x64_bundle.msixupload" -PDPRootPath update -ImagesRootPath update -Release $(Version) -OutPath out -OutName package
+
     # Create new submission
-    Update-ApplicationSubmission -AppId $appId -SubmissionDataPath out\package.json -PackagePath out\package.zip -AutoCommit -ReplacePackages -UpdateListings -Force
+    $sub = New-ApplicationSubmission -AppId $appId -Force
+    # Parse submission meta
+    $json = (Get-Content out\package.json -Encoding UTF8) | ConvertFrom-Json
+    # Delete old packages
+    foreach ($package in $sub.applicationPackages) {
+      if ($package.id -ne "2000000000083240524") {
+        $package.fileStatus = "PendingDelete"
+      }
+    }
+    # add new packages
+    $sub.applicationPackages += $json.applicationPackages
+    # Upload submission meta
+    Set-ApplicationSubmission -AppId $appId -UpdatedSubmission $sub
+    # Upload submission package
+    Set-SubmissionPackage -PackagePath out\package.zip -UploadUrl ($sub.fileUploadUrl)
+    # Commit changes
+    Complete-ApplicationSubmission -AppId $appId -SubmissionId ($sub.id)
   env:
     PARTNER_CENTER_CLIENT_ID: $(PARTNER_CENTER_CLIENT_ID)
     PARTNER_CENTER_CLIENT_SECRET: $(PARTNER_CENTER_CLIENT_SECRET)
