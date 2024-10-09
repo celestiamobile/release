@@ -18,7 +18,7 @@ steps:
   displayName: 'Download macOS Sideload Build'
 
 - script: |
-    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/MobileCelestia/develop/MobileCelestia.xcodeproj/project.pbxproj" | awk -F'[=; ]' '/SHARED_BUILD_VERSION/{print $4; exit}')
+    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/MobileCelestia/$(BRANCH)/MobileCelestia.xcodeproj/project.pbxproj" | awk -F'[=; ]' '/SHARED_BUILD_VERSION/{print $4; exit}')
     echo "##vso[task.setvariable variable=Version]$VERSION"
     TAG=$(echo $VERSION | sed 's/\./_/g')_rc$(RC)
     echo "##vso[task.setvariable variable=Tag]$TAG"
