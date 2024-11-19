@@ -1,1 +1,2 @@
-1. Fix incorrect RA/DEC in Info
+1. Fix bugs
+2. Data update (ISS has been removed)

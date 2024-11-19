@@ -1,3 +1,3 @@
-1. Fix incorrect RA/DEC in Info
-2. Fix time setting work incorrectly
-3. Fix some issues around bookmarks
+1. Fix bugs
+2. Data update (ISS has been removed)
+3. App is migrated to WinUI 3, future versions will no longer support Xbox
