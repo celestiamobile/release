@@ -77,7 +77,7 @@ steps:
     $json = (Get-Content out\package.json -Encoding UTF8) | ConvertFrom-Json
     # Delete old packages
     foreach ($package in $sub.applicationPackages) {
-      if ($package.id -ne "2000000000083240524") {
+      if ($package.id -ne "2000000000083616721") {
         $package.fileStatus = "PendingDelete"
       }
     }
