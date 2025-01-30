@@ -1,2 +1,5 @@
-1. Fix bugs
-2. Data update (ISS has been removed)
+1. Support standard capitalization of "au" in units parsing
+2. Add location code ST (Statio) for landing sites
+3. Localization update
+4. Data update (ISS has been removed)
+5. Fix bugs
