@@ -49,7 +49,7 @@ steps:
     # Read release notes
     $releaseNotes = Get-Content upload-release\release-notes-uwp.txt -Raw
 
-    $folders = Get-ChildItem -Recurse -Directory -Path CelestiaUWP\CelestiaUWP\metadata
+    $folders = Get-ChildItem -Recurse -Directory -Path CelestiaUWP\metadata
     foreach ($folder in $folders) {
       # Replace RELEASE_NOTES_PLACEHOLDER in PDP.xml with release notes
       $pdpPath = Join-Path $folder.FullName "PDP.xml"
@@ -61,12 +61,12 @@ steps:
       }
       
       # Copy screenshot files from en
-      Copy-Item -Path "CelestiaUWP\CelestiaUWP\metadata\en\Output*.png" -Destination $folder.FullName -Force
+      Copy-Item -Path "CelestiaUWP\metadata\en\Output*.png" -Destination $folder.FullName -Force
     }
 
     # Create directory for update
     mkdir -Path update
-    Move-Item -Path "CelestiaUWP\CelestiaUWP\metadata" -Destination update\$(Version) -Force
+    Move-Item -Path "CelestiaUWP\metadata" -Destination update\$(Version) -Force
 
     # Create submission package
     New-SubmissionPackage -ConfigPath update\$(Version)\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaWinUI_$(Version)_x64_bundle.msixupload" -PDPRootPath update -ImagesRootPath update -Release $(Version) -OutPath out -OutName package
