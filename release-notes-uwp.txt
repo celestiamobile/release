@@ -1,5 +1,4 @@
-1. Support standard capitalization of "au" in units parsing
-2. Add location code ST (Statio) for landing sites
-3. Localization update
-4. Data update (ISS has been removed)
-5. Fix bugs
+1. Fix invalid spectral type on CHI1 Hya B
+2. Fix incorrect spelling of "OverlayTexture"
+3. Add morphological type to ESO 294-10
+4. Add new default ISS for Celestia
