@@ -8,7 +8,7 @@ resources:
 trigger: none
 
 pool:
-  vmImage: 'windows-2022'
+  vmImage: 'windows-2025'
 
 steps:
 - checkout: CelestiaUWP

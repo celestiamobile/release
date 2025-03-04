@@ -8,7 +8,7 @@ resources:
 trigger: none
 
 pool:
-  vmImage: macos-13
+  vmImage: macos-15
 
 steps:
 - checkout: AndroidCelestia
