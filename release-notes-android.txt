@@ -1,7 +1,1 @@
-1. Fix invalid spectral type on CHI1 Hya B
-2. Fix incorrect spelling of "OverlayTexture"
-3. Fix DDS texture display
-4. Add morphological type to ESO 294-10
-5. Add new default ISS for Celestia
-6. Fix folder selection in Data Location
-7. Add support for predictive back in Android 14 or later
+1. Update exoplanets - fix InfoURLs
