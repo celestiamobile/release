@@ -1,1 +1,7 @@
-1. Update exoplanets - fix InfoURLs
+1. Remove Mir add-on
+2. Additional comets for Celestia (2025)
+3. Minor corrections to radii/diameters of comets
+4. nearstars.stc update (2025-05-25)
+5. Solar System update (2025-05-25)
+6. Better temperature calculation
+7. Default emissivity should be 1
