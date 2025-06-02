@@ -3,5 +3,6 @@
 3. Minor corrections to radii/diameters of comets
 4. nearstars.stc update (2025-05-25)
 5. Solar System update (2025-05-25)
-6. Better temperature calculation
-7. Default emissivity should be 1
+6. Revised rotation periods for Giacobini–Zinner, Hale–Bopp, and Siding Spring
+7. Better temperature calculation
+8. Default emissivity should be 1
