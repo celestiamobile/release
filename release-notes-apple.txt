@@ -1,8 +1,3 @@
-1. Remove Mir add-on
-2. Additional comets for Celestia (2025)
-3. Minor corrections to radii/diameters of comets
-4. nearstars.stc update (2025-05-25)
-5. Solar System update (2025-05-25)
-6. Revised rotation periods for Giacobini–Zinner, Hale–Bopp, and Siding Spring
-7. Better temperature calculation
-8. Default emissivity should be 1
+1. June 2025 revision of exoplanets catalogs
+2. Rename (307261) 2002 MS₄ to 307261 Máni
+3. Support gyroscope on supported devices
