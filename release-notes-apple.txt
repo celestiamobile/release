@@ -2,4 +2,4 @@
 2. Rename (307261) 2002 MS₄ to 307261 Máni
 3. Physical characteristics for Tsuchinshan–ATLAS (2025)
 4. Rotation period for C/2006 P1 (McNaught)
-5. Support gyroscope on supported devices
+5. Support gyroscope on supported devices in Camera Control
