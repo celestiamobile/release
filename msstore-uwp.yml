@@ -83,6 +83,7 @@ steps:
     }
     # add new packages
     $sub.applicationPackages = $json.applicationPackages + $sub.applicationPackages
+    $sub.listings = $json.listings
     # Upload submission meta
     Set-ApplicationSubmission -AppId $appId -UpdatedSubmission $sub
     # Upload submission package
