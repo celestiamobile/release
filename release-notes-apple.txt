@@ -4,3 +4,4 @@
 4. Rotation period for C/2006 P1 (McNaught)
 5. Support gyroscope on supported devices in Camera Control
 6. Fix high frame rate setting not working
+7. Fix context menu not loading or action not working
