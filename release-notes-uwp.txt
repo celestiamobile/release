@@ -4,4 +4,5 @@
 4. Fix GL not working in Lua scripts
 5. Add new Lua command: setcloudtexture
 6. Add support for showing script system access prompt for Lua scripts
-7. Add support for launching Celestia with celestia:// URL scheme
+7. Fix constellation line fade distance
+8. Add support for launching Celestia with celestia:// URL scheme
