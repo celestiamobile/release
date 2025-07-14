@@ -1,8 +1,2 @@
-1. Update atmospheres
-2. Rename 55565 Aya and 208996 Achlys
-3. Use minimum distance of 1e7 km in comet tail size calculation
-4. Fix GL not working in Lua scripts
-5. Add new Lua command: setcloudtexture
-6. Add support for showing script system access prompt for Lua scripts
-7. Fix constellation line fade distance
-8. Add support for launching Celestia with celestia:// URL scheme
+1. Use barycentric orbits for most centaurs and TNOs
+2. Exoplanets July 2025

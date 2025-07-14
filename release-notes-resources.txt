@@ -1,2 +1,2 @@
-1. Update atmospheres
-2. Rename 55565 Aya and 208996 Achlys
+1. Use barycentric orbits for most centaurs and TNOs
+2. Exoplanets July 2025
