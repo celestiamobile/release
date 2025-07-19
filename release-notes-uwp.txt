@@ -1,2 +1,4 @@
 1. Use barycentric orbits for most centaurs and TNOs
 2. Exoplanets July 2025
+3. Add a setting to align camera orientation to surface on landing
+4. Right thumbstick control now does not cause camera rotation
