@@ -1,4 +1,10 @@
 1. Use barycentric orbits for most centaurs and TNOs
 2. Exoplanets July 2025
-3. Add a setting to align camera orientation to surface on landing
-4. Right thumbstick control now does not cause camera rotation
+3. Rotation period for 3I/ATLAS
+4. Updates to TNO systems
+5. Add Mathilde; update Eros and Itokawa
+6. Add 40 pc white dwarf catalog
+7. Update Titan cloud texture (by ShadowDragon777)
+8. Add a setting to align camera orientation to surface on landing
+9. Right thumbstick control now does not cause camera rotation
+10. Update DSO page of Star Browser

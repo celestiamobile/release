@@ -1,2 +1,7 @@
 1. Use barycentric orbits for most centaurs and TNOs
 2. Exoplanets July 2025
+3. Rotation period for 3I/ATLAS
+4. Updates to TNO systems
+5. Add Mathilde; update Eros and Itokawa
+6. Add 40 pc white dwarf catalog
+7. Update Titan cloud texture (by ShadowDragon777)
