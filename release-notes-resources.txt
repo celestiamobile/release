@@ -5,3 +5,4 @@
 5. Add Mathilde; update Eros and Itokawa
 6. Add 40 pc white dwarf catalog
 7. Update Titan cloud texture (by ShadowDragon777)
+8. Exoplanets August 2025

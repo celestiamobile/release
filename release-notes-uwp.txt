@@ -5,6 +5,7 @@
 5. Add Mathilde; update Eros and Itokawa
 6. Add 40 pc white dwarf catalog
 7. Update Titan cloud texture (by ShadowDragon777)
-8. Add a setting to align camera orientation to surface on landing
-9. Right thumbstick control now does not cause camera rotation
-10. Update DSO page of Star Browser
+8. Exoplanets August 2025
+9. Add a setting to align camera orientation to surface on landing
+10. Right thumbstick control now does not cause camera rotation
+11. Update DSO page of Star Browser
