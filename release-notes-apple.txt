@@ -1,4 +1,1 @@
-1. Update star names (2025-08-04)
-2. Update pulsar catalog
-3. Rename (2013 FY₂₇) into 532037 Chiminigagua
-4. Titan's surface and clouds update
+1. Data update (2025-09-07)
