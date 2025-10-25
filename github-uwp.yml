@@ -39,7 +39,7 @@ steps:
     rootFolderOrFile: '$(System.ArtifactsDirectory)/CelestiaSL-x64'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version)_x64.zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaWinUI_$(Version)_x64.zip'
     replaceExistingArchive: true
   displayName: 'Create Archive (x64)'
 
@@ -48,7 +48,7 @@ steps:
     rootFolderOrFile: '$(System.ArtifactsDirectory)/CelestiaSL-arm64'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version)_arm64.zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaWinUI_$(Version)_arm64.zip'
     replaceExistingArchive: true
   displayName: 'Create Archive (arm64)'
 
@@ -78,5 +78,5 @@ steps:
     releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-uwp.txt'
     isDraft: true
     addChangeLog: false
-    assets: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version)_*.zip'
+    assets: '$(System.DefaultWorkingDirectory)/CelestiaWinUI_$(Version)_*.zip'
   displayName: 'Release'
