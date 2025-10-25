@@ -1,2 +1,2 @@
-1. Data update (2025-09-14)
-2. Add settings for Config File and Data Directory Location
+1. Data update (2025-10-14)
+2. Add native support for ARM64 architecture
