@@ -13,9 +13,21 @@ steps:
     buildVersionToDownload: 'specific'
     buildId: '$(BUILD_ID)'
     downloadType: 'single'
-    artifactName: 'CelestiaSL'
+    artifactName: 'CelestiaSL-x64'
     downloadPath: '$(System.ArtifactsDirectory)'
-  displayName: 'Download Sideload Build'
+  displayName: 'Download Sideload Build (x64)'
+
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'specific'
+    project: '9f9dcde1-dcba-4537-8214-71c8a03b99a0'
+    pipeline: '8'
+    buildVersionToDownload: 'specific'
+    buildId: '$(BUILD_ID)'
+    downloadType: 'single'
+    artifactName: 'CelestiaSL-arm64'
+    downloadPath: '$(System.ArtifactsDirectory)'
+  displayName: 'Download Sideload Build (arm64)'
 
 - script: |
     VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/CelestiaWinUI/Package.appxmanifest" | awk -F'"' '/Version=/ {print $2; exit}')
@@ -24,12 +36,21 @@ steps:
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(System.ArtifactsDirectory)/CelestiaSL'
+    rootFolderOrFile: '$(System.ArtifactsDirectory)/CelestiaSL-x64'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version).zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version)_x64.zip'
     replaceExistingArchive: true
-  displayName: 'Create Archive'
+  displayName: 'Create Archive (x64)'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.ArtifactsDirectory)/CelestiaSL-arm64'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version)_arm64.zip'
+    replaceExistingArchive: true
+  displayName: 'Create Archive (arm64)'
 
 - script: |
     CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia $(BRANCH) | cut -f 1)
@@ -57,5 +78,5 @@ steps:
     releaseNotesFilePath: '$(System.DefaultWorkingDirectory)/release-notes-uwp.txt'
     isDraft: true
     addChangeLog: false
-    assets: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version).zip'
+    assets: '$(System.DefaultWorkingDirectory)/CelestiaUWP_$(Version)_*.zip'
   displayName: 'Release'

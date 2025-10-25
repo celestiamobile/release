@@ -69,7 +69,7 @@ steps:
     Move-Item -Path "CelestiaUWP\metadata" -Destination update\$(Version) -Force
 
     # Create submission package
-    New-SubmissionPackage -ConfigPath update\$(Version)\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaWinUI_$(Version)_x64_bundle.msixupload" -PDPRootPath update -ImagesRootPath update -Release $(Version) -OutPath out -OutName package
+    New-SubmissionPackage -ConfigPath update\$(Version)\submission.json -AppxPath "$(System.ArtifactsDirectory)\msixupload\CelestiaWinUI_$(Version)_x64_arm64.msixupload" -PDPRootPath update -ImagesRootPath update -Release $(Version) -OutPath out -OutName package
 
     # Create new submission
     $sub = New-ApplicationSubmission -AppId $appId -Force
