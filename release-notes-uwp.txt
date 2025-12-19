@@ -1,3 +1,3 @@
-1. Data update (2025-11-02)
+1. Data update (2025-12-16)
 2. Try lookup with component A suffix after trying catalog lookup
 3. Add an Update button for add-ons that have updates available (only supported for newly installed add-ons from this version or later)
