@@ -1,1 +1,2 @@
 1. Data update (2026-01-05)
+2. Celestia PLUS users can now view add-on updates from Installed Add-ons
