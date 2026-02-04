@@ -1,2 +1,2 @@
-1. Data update (2026-01-13)
-2. Open clusters are no longer pickable
+1. Data update (2026-02-03)
+2. Fix incorrect textures on add-ons that have the same texture names
