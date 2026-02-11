@@ -1,3 +1,4 @@
-1. Data update (2026-02-04)
-2. Fix incorrect textures on add-ons that have the same texture names
-3. Fix crashes in some add-ons that contain bad cmod models
+1. Data update (2026-02-10)
+2. Update default comet tail colour
+3. Update info display
+4. Fix texture display for objects with oblateness
