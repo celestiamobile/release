@@ -1,4 +1,4 @@
-1. Data update (2026-02-10)
-2. Update default comet tail colour
-3. Update info display
-4. Fix texture display for objects with oblateness
+1. Data update (2026-02-15)
+2. Handle out-of-range catalog numbers in .stc
+3. Use geometryOrientation in location positioning
+4. Add support for looking up add-ons in object's info page
