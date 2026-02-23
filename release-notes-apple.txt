@@ -1,4 +1,5 @@
-1. Data update (2026-02-15)
+1. Data update (2026-02-22)
 2. Handle out-of-range catalog numbers in .stc
 3. Use geometryOrientation in location positioning
-4. Add support for looking up add-ons in object's info page
+4. Add support for looking up related add-ons in object's info page
+5. Show font preview in font settings
