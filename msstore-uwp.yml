@@ -27,12 +27,18 @@ steps:
     downloadPath: '$(System.ArtifactsDirectory)'
   displayName: 'Download Build'
 
+- pwsh: |
+    $file = Get-ChildItem -Path "$(System.ArtifactsDirectory)\msixupload" -Filter "CelestiaWinUI_*_x64_arm64.msixupload" | Select-Object -First 1
+    if ($file.BaseName -match 'CelestiaWinUI_(.+)_x64_arm64') {
+      $version = $Matches[1]
+      Write-Host "##vso[task.setvariable variable=Version]$version"
+    }
+  displayName: 'Set Version Variable'
+
 - bash: |
-    VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/$(BRANCH)/CelestiaWinUI/Package.appxmanifest" | awk -F'"' '/Version=/ {print $2; exit}')
-    echo "##vso[task.setvariable variable=Version]$VERSION"
     cd CelestiaUWP
     git checkout $(BRANCH)
-  displayName: 'Set Version Variable'
+  displayName: 'Checkout Branch'
 
 - pwsh: |
     Install-Module -Name StoreBroker -Force
