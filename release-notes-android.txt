@@ -1,2 +1,2 @@
-1. Improve handling of bottom sheet and back button
-2. Fix bugs
+1. Fix volume up/down button not working when inside app
+2. Fix time setting not working
