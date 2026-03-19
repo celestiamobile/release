@@ -1,0 +1,59 @@
+# Required secrets:
+#   GH_PAT                                      - GitHub PAT to download artifacts from MobileCelestia
+#   APPSTORE_CONNECT_KEY_JSON_BASE64            - Base64-encoded appstore-connect-key.json
+#   FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD
+
+name: App Store (iOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'MobileCelestia build run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
+      rc:
+        description: 'RC number'
+        required: true
+
+jobs:
+  upload:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+
+      - name: Checkout MobileCelestia
+        uses: actions/checkout@v4
+        with:
+          repository: celestiamobile/MobileCelestia
+          token: ${{ secrets.GH_PAT }}
+          path: MobileCelestia
+          fetch-depth: 0
+
+      - name: Download Build
+        uses: actions/download-artifact@v4
+        with:
+          name: iphoneos-appStore-openGL-product
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/MobileCelestia
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}/artifacts'
+
+      - name: Decode App Store Connect Key
+        run: echo "${{ secrets.APPSTORE_CONNECT_KEY_JSON_BASE64 }}" | base64 --decode > $RUNNER_TEMP/appstore-connect-key.json
+
+      - name: Upload
+        run: |
+          cd MobileCelestia
+          git checkout ${{ inputs.branch }}
+          cd fastlane/ios
+          CHANGELOG=$(cat $GITHUB_WORKSPACE/release-notes-apple.txt)
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }} fastlane pilot upload \
+            --ipa $RUNNER_TEMP/artifacts/Celestia.ipa \
+            --submit_beta_review \
+            --api_key_path $RUNNER_TEMP/appstore-connect-key.json \
+            --changelog "$CHANGELOG"

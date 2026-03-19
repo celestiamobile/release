@@ -1,0 +1,61 @@
+# Required secrets:
+#   GH_PAT                          - GitHub PAT to download artifacts from AndroidCelestia
+#   FASTLANE_PLAY_KEY_JSON_BASE64   - Base64-encoded fastlane_playkey.json
+
+name: Google Play (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'AndroidCelestia build run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
+
+jobs:
+  upload:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+
+      - name: Checkout AndroidCelestia
+        uses: actions/checkout@v4
+        with:
+          repository: celestiamobile/AndroidCelestia
+          token: ${{ secrets.GH_PAT }}
+          path: AndroidCelestia
+          fetch-depth: 0
+
+      - name: Download Build
+        uses: actions/download-artifact@v4
+        with:
+          name: aab
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/AndroidCelestia
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}/aab'
+
+      - name: Decode Play Key
+        run: echo "${{ secrets.FASTLANE_PLAY_KEY_JSON_BASE64 }}" | base64 --decode > $RUNNER_TEMP/fastlane_playkey.json
+
+      - name: Upload
+        run: |
+          BUILD=$(curl -s "https://raw.githubusercontent.com/celestiamobile/AndroidCelestia/${{ inputs.branch }}/app/src/main/AndroidManifest.xml" | awk -F'"' '/android.versionCode=/ {print $2; exit}')
+          cd AndroidCelestia
+          git checkout ${{ inputs.branch }}
+          cd app/src/play/fastlane
+          mkdir -p metadata/en-US/changelogs
+          cp $GITHUB_WORKSPACE/release-notes-android.txt metadata/en-US/changelogs/$BUILD.txt
+          fastlane supply \
+            --aab $RUNNER_TEMP/aab/app-play-release.aab \
+            --track beta \
+            --json_key $RUNNER_TEMP/fastlane_playkey.json \
+            --package_name space.celestia.mobilecelestia \
+            --skip_upload_image \
+            --skip_upload_metadata \
+            --skip_upload_screenshots \
+            --skip_upload_apk

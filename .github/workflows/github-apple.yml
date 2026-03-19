@@ -1,0 +1,68 @@
+# Required secrets:
+#   GH_PAT  - GitHub PAT to download artifacts and create releases
+
+name: GitHub Release (Apple)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'MobileCelestia build run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
+      rc:
+        description: 'RC number'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+
+      - name: Download macOS Sideload Build
+        uses: actions/download-artifact@v4
+        with:
+          name: macosx-developerID-openGL-product
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/MobileCelestia
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}/artifacts'
+
+      - name: Set Version and Tag
+        run: |
+          VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/MobileCelestia/${{ inputs.branch }}/MobileCelestia.xcodeproj/project.pbxproj" | awk -F'[=; ]' '/SHARED_BUILD_VERSION/{print $4; exit}')
+          TAG=$(echo $VERSION | sed 's/\./_/g')_rc${{ inputs.rc }}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Rename File
+        run: mv $RUNNER_TEMP/artifacts/App.zip $RUNNER_TEMP/Celestia_${{ env.VERSION }}_macOS.zip
+
+      - name: Update Release Notes
+        run: |
+          CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia ${{ inputs.branch }} | cut -f 1)
+          CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization ${{ inputs.branch }} | cut -f 1)
+          CELESTIA_CORE_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaCore ${{ inputs.branch }} | cut -f 1)
+          CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/${{ inputs.branch }}/jobs/build.yml" | awk -F"'" '/contentCommitHash/ {print $2}')
+          echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-apple.txt
+          echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-apple.txt
+          echo https://github.com/celestiamobile/CelestiaCore/commit/$CELESTIA_CORE_REPO_COMMIT >> release-notes-apple.txt
+          echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-apple.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          COMMIT=$(git ls-remote https://github.com/celestiamobile/MobileCelestia ${{ inputs.branch }} | cut -f 1)
+          gh release create ${{ env.TAG }} \
+            --repo celestiamobile/MobileCelestia \
+            --target $COMMIT \
+            --title "${{ env.VERSION }}" \
+            --notes-file release-notes-apple.txt \
+            --draft \
+            $RUNNER_TEMP/Celestia_${{ env.VERSION }}_macOS.zip

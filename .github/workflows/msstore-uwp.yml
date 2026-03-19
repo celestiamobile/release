@@ -1,0 +1,107 @@
+# Required secrets:
+#   GH_PAT                      - GitHub PAT to download artifacts from CelestiaUWP
+#   PARTNER_CENTER_CLIENT_ID
+#   PARTNER_CENTER_CLIENT_SECRET
+#   PARTNER_CENTER_TENANT_ID
+#   PARTNER_CENTER_APP_ID
+
+name: Microsoft Store (UWP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'CelestiaUWP build run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
+
+jobs:
+  upload:
+    runs-on: windows-2025
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+
+      - name: Checkout CelestiaUWP
+        uses: actions/checkout@v4
+        with:
+          repository: celestiamobile/CelestiaUWP
+          token: ${{ secrets.GH_PAT }}
+          path: CelestiaUWP
+          fetch-depth: 0
+
+      - name: Download Build
+        uses: actions/download-artifact@v4
+        with:
+          name: msixupload
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/CelestiaUWP
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}\msixupload'
+
+      - name: Set Version
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem -Path "$env:RUNNER_TEMP\msixupload" -Filter "CelestiaWinUI_*_x64_arm64.msixupload" | Select-Object -First 1
+          if ($file.BaseName -match 'CelestiaWinUI_(.+)_x64_arm64') {
+            $version = $Matches[1]
+            echo "VERSION=$version" >> $env:GITHUB_ENV
+          }
+
+      - name: Checkout Branch
+        run: |
+          cd CelestiaUWP
+          git checkout ${{ inputs.branch }}
+
+      - name: Setup StoreBroker
+        shell: pwsh
+        run: Install-Module -Name StoreBroker -Force
+
+      - name: Upload Release
+        shell: pwsh
+        env:
+          PARTNER_CENTER_CLIENT_ID: ${{ secrets.PARTNER_CENTER_CLIENT_ID }}
+          PARTNER_CENTER_CLIENT_SECRET: ${{ secrets.PARTNER_CENTER_CLIENT_SECRET }}
+          PARTNER_CENTER_TENANT_ID: ${{ secrets.PARTNER_CENTER_TENANT_ID }}
+          PARTNER_CENTER_APP_ID: ${{ secrets.PARTNER_CENTER_APP_ID }}
+        run: |
+          $user = $Env:PARTNER_CENTER_CLIENT_ID
+          $password = ConvertTo-SecureString $Env:PARTNER_CENTER_CLIENT_SECRET -AsPlainText -Force
+          $Cred = New-Object System.Management.Automation.PSCredential($user, $password)
+          Set-StoreBrokerAuthentication -TenantId $Env:PARTNER_CENTER_TENANT_ID -Credential $Cred
+          $appId = $Env:PARTNER_CENTER_APP_ID
+
+          $releaseNotes = Get-Content release-notes-uwp.txt -Raw
+
+          $folders = Get-ChildItem -Recurse -Directory -Path CelestiaUWP\metadata
+          foreach ($folder in $folders) {
+            $pdpPath = Join-Path $folder.FullName "PDP.xml"
+            (Get-Content $pdpPath) -replace "RELEASE_NOTES_PLACEHOLDER", $releaseNotes | Set-Content $pdpPath
+            (Get-Content $pdpPath) -replace "RELEASE_VERSION_PLACEHOLDER", "${{ env.VERSION }}" | Set-Content $pdpPath
+
+            if ($folder.Name -eq "en") {
+              continue
+            }
+            Copy-Item -Path "CelestiaUWP\metadata\en\Output*.png" -Destination $folder.FullName -Force
+          }
+
+          mkdir -Path update
+          Move-Item -Path "CelestiaUWP\metadata" -Destination "update\${{ env.VERSION }}" -Force
+
+          New-SubmissionPackage -ConfigPath "update\${{ env.VERSION }}\submission.json" -AppxPath "$env:RUNNER_TEMP\msixupload\CelestiaWinUI_${{ env.VERSION }}_x64_arm64.msixupload" -PDPRootPath update -ImagesRootPath update -Release "${{ env.VERSION }}" -OutPath out -OutName package
+
+          $sub = New-ApplicationSubmission -AppId $appId -Force
+          $json = (Get-Content out\package.json -Encoding UTF8) | ConvertFrom-Json
+          foreach ($package in $sub.applicationPackages) {
+            if ($package.id -ne "2000000000083616721") {
+              $package.fileStatus = "PendingDelete"
+            }
+          }
+          $sub.applicationPackages = $json.applicationPackages + $sub.applicationPackages
+          $sub.listings = $json.listings
+          Set-ApplicationSubmission -AppId $appId -UpdatedSubmission $sub
+          Set-SubmissionPackage -PackagePath out\package.zip -UploadUrl ($sub.fileUploadUrl)
+          Complete-ApplicationSubmission -AppId $appId -SubmissionId ($sub.id)

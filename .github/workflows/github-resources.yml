@@ -1,0 +1,69 @@
+# Required secrets:
+#   GH_PAT  - GitHub PAT to download artifacts and create releases
+
+name: GitHub Release (Resources)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'AndroidCelestia build run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
+      rc:
+        description: 'RC number'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+
+      - name: Download Build
+        uses: actions/download-artifact@v4
+        with:
+          name: apk
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/AndroidCelestia
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}/apk'
+
+      - name: Set Version and Tag
+        run: |
+          VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/AndroidCelestia/${{ inputs.branch }}/app/src/main/AndroidManifest.xml" | awk -F'"' '/android.versionName=/ {print $2; exit}')
+          TAG=$(echo $VERSION | sed 's/\./_/g')_rc${{ inputs.rc }}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Extract CelestiaResources
+        run: unzip -o $RUNNER_TEMP/apk/app-sideload-release-unsigned.apk 'assets/CelestiaResources/*' -d $RUNNER_TEMP/extracted
+
+      - name: Create Archive
+        run: |
+          cd $RUNNER_TEMP/extracted/assets
+          zip -r $RUNNER_TEMP/CelestiaResources${{ env.VERSION }}.zip CelestiaResources
+
+      - name: Update Release Notes
+        run: |
+          CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization ${{ inputs.branch }} | cut -f 1)
+          CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/${{ inputs.branch }}/jobs/build.yml" | awk -F"'" '/contentCommitHash/ {print $2}')
+          echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-resources.txt
+          echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-resources.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia ${{ inputs.branch }} | cut -f 1)
+          gh release create ${{ env.TAG }} \
+            --repo celestiamobile/Celestia \
+            --target $COMMIT \
+            --title "${{ env.VERSION }}" \
+            --notes-file release-notes-resources.txt \
+            --draft \
+            $RUNNER_TEMP/CelestiaResources${{ env.VERSION }}.zip

@@ -1,0 +1,73 @@
+# Required secrets:
+#   GH_PAT  - GitHub PAT to download artifacts and create releases
+
+name: GitHub Release (UWP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'CelestiaUWP build run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+
+      - name: Download Sideload Build (x64)
+        uses: actions/download-artifact@v4
+        with:
+          name: CelestiaSL-x64
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/CelestiaUWP
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}/CelestiaSL-x64'
+
+      - name: Download Sideload Build (arm64)
+        uses: actions/download-artifact@v4
+        with:
+          name: CelestiaSL-arm64
+          run-id: ${{ inputs.run_id }}
+          repository: celestiamobile/CelestiaUWP
+          github-token: ${{ secrets.GH_PAT }}
+          path: '${{ runner.temp }}/CelestiaSL-arm64'
+
+      - name: Set Version
+        run: |
+          VERSION=$(ls -d $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_*_*_Test | head -1 | sed 's/.*CelestiaWinUI_\(.*\)_.*_Test/\1/')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create Archives
+        run: |
+          cd $RUNNER_TEMP/CelestiaSL-x64 && zip -r $RUNNER_TEMP/CelestiaWinUI_${{ env.VERSION }}_x64.zip .
+          cd $RUNNER_TEMP/CelestiaSL-arm64 && zip -r $RUNNER_TEMP/CelestiaWinUI_${{ env.VERSION }}_arm64.zip .
+
+      - name: Update Release Notes
+        run: |
+          CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia ${{ inputs.branch }} | cut -f 1)
+          CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization ${{ inputs.branch }} | cut -f 1)
+          CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/${{ inputs.branch }}/jobs/build.yml" | awk -F"'" '/contentCommitHash/ {print $2}')
+          echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-uwp.txt
+          echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-uwp.txt
+          echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-uwp.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaUWP ${{ inputs.branch }} | cut -f 1)
+          gh release create ${{ env.VERSION }} \
+            --repo celestiamobile/CelestiaUWP \
+            --target $COMMIT \
+            --title "${{ env.VERSION }}" \
+            --notes-file release-notes-uwp.txt \
+            --draft \
+            $RUNNER_TEMP/CelestiaWinUI_${{ env.VERSION }}_x64.zip \
+            $RUNNER_TEMP/CelestiaWinUI_${{ env.VERSION }}_arm64.zip
