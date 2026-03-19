@@ -57,3 +57,4 @@ jobs:
             --submit_beta_review \
             --api_key_path $RUNNER_TEMP/appstore-connect-key.json \
             --changelog "$CHANGELOG"
+

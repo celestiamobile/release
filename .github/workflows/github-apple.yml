@@ -66,3 +66,4 @@ jobs:
             --notes-file release-notes-apple.txt \
             --draft \
             $RUNNER_TEMP/Celestia_${{ env.VERSION }}_macOS.zip
+

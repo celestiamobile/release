@@ -67,3 +67,4 @@ jobs:
             --notes-file release-notes-resources.txt \
             --draft \
             $RUNNER_TEMP/CelestiaResources${{ env.VERSION }}.zip
+

@@ -105,3 +105,4 @@ jobs:
           Set-ApplicationSubmission -AppId $appId -UpdatedSubmission $sub
           Set-SubmissionPackage -PackagePath out\package.zip -UploadUrl ($sub.fileUploadUrl)
           Complete-ApplicationSubmission -AppId $appId -SubmissionId ($sub.id)
+

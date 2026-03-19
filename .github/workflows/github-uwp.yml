@@ -71,3 +71,4 @@ jobs:
             --draft \
             $RUNNER_TEMP/CelestiaWinUI_${{ env.VERSION }}_x64.zip \
             $RUNNER_TEMP/CelestiaWinUI_${{ env.VERSION }}_arm64.zip
+
