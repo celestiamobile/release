@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'MobileCelestia build run ID'
-        required: true
+        description: 'MobileCelestia build run ID (leave empty for latest)'
+        required: false
       branch:
         description: 'Branch'
         required: true
@@ -26,11 +26,22 @@ jobs:
       - name: Checkout release
         uses: actions/checkout@v4
 
+      - name: Resolve Run ID
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -n "${{ inputs.run_id }}" ]; then
+            echo "RESOLVED_RUN_ID=${{ inputs.run_id }}" >> $GITHUB_ENV
+          else
+            RUN_ID=$(gh api "repos/celestiamobile/MobileCelestia/actions/workflows/build.yml/runs?branch=${{ inputs.branch }}&status=success&per_page=1" --jq '.workflow_runs[0].id')
+            echo "RESOLVED_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          fi
+
       - name: Download macOS Sideload Build
         uses: actions/download-artifact@v4
         with:
           name: macosx-developerID-openGL-product
-          run-id: ${{ inputs.run_id }}
+          run-id: ${{ env.RESOLVED_RUN_ID }}
           repository: celestiamobile/MobileCelestia
           github-token: ${{ secrets.GH_PAT }}
           path: '${{ runner.temp }}/artifacts'

@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'AndroidCelestia build run ID'
-        required: true
+        description: 'AndroidCelestia build run ID (leave empty for latest)'
+        required: false
       branch:
         description: 'Branch'
         required: true
@@ -31,11 +31,22 @@ jobs:
           path: AndroidCelestia
           fetch-depth: 0
 
+      - name: Resolve Run ID
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -n "${{ inputs.run_id }}" ]; then
+            echo "RESOLVED_RUN_ID=${{ inputs.run_id }}" >> $GITHUB_ENV
+          else
+            RUN_ID=$(gh api "repos/celestiamobile/AndroidCelestia/actions/workflows/build.yml/runs?branch=${{ inputs.branch }}&status=success&per_page=1" --jq '.workflow_runs[0].id')
+            echo "RESOLVED_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          fi
+
       - name: Download Build
         uses: actions/download-artifact@v4
         with:
           name: aab
-          run-id: ${{ inputs.run_id }}
+          run-id: ${{ env.RESOLVED_RUN_ID }}
           repository: celestiamobile/AndroidCelestia
           github-token: ${{ secrets.GH_PAT }}
           path: '${{ runner.temp }}/aab'

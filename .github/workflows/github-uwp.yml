@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'CelestiaUWP build run ID'
-        required: true
+        description: 'CelestiaUWP build run ID (leave empty for latest)'
+        required: false
       branch:
         description: 'Branch'
         required: true
@@ -22,11 +22,22 @@ jobs:
       - name: Checkout release
         uses: actions/checkout@v4
 
+      - name: Resolve Run ID
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -n "${{ inputs.run_id }}" ]; then
+            echo "RESOLVED_RUN_ID=${{ inputs.run_id }}" >> $GITHUB_ENV
+          else
+            RUN_ID=$(gh api "repos/celestiamobile/CelestiaUWP/actions/workflows/build.yml/runs?branch=${{ inputs.branch }}&status=success&per_page=1" --jq '.workflow_runs[0].id')
+            echo "RESOLVED_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          fi
+
       - name: Download Sideload Build (x64)
         uses: actions/download-artifact@v4
         with:
           name: CelestiaSL-x64
-          run-id: ${{ inputs.run_id }}
+          run-id: ${{ env.RESOLVED_RUN_ID }}
           repository: celestiamobile/CelestiaUWP
           github-token: ${{ secrets.GH_PAT }}
           path: '${{ runner.temp }}/CelestiaSL-x64'
@@ -35,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: CelestiaSL-arm64
-          run-id: ${{ inputs.run_id }}
+          run-id: ${{ env.RESOLVED_RUN_ID }}
           repository: celestiamobile/CelestiaUWP
           github-token: ${{ secrets.GH_PAT }}
           path: '${{ runner.temp }}/CelestiaSL-arm64'
