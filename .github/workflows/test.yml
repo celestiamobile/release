@@ -1,8 +1,15 @@
 name: Test
 on:
   workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Run ID'
+        required: true
+      branch:
+        description: 'Branch'
+        required: true
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo hello
+      - run: echo ${{ inputs.run_id }}
