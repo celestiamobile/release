@@ -12,9 +12,11 @@ on:
       branch:
         description: 'Branch'
         required: true
+        default: 'develop'
       rc:
         description: 'RC number'
         required: true
+        default: '1'
 
 jobs:
   release:

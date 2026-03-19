@@ -12,6 +12,7 @@ on:
       branch:
         description: 'Branch'
         required: true
+        default: 'develop'
 
 jobs:
   release:
