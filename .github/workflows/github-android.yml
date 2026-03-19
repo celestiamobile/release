@@ -64,3 +64,4 @@ jobs:
             --notes-file release-notes-android.txt \
             --draft \
             $RUNNER_TEMP/celestia-${{ env.VERSION }}-rc${{ inputs.rc }}.apk
+
