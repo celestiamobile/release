@@ -1,3 +1,1 @@
-1. Data update (2026-02-22)
-2. Handle out-of-range catalog numbers in .stc
-3. Use geometryOrientation in location positioning
+1. Data update (2026-03-22)

@@ -1,2 +1,1 @@
-1. Fix volume up/down button not working when inside app
-2. Fix time setting not working
+1. Data update (2026-03-22)
