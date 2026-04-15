@@ -153,5 +153,5 @@ jobs:
             $RUNNER_TEMP/CelestiaSL-x64/CelestiaWinUI_${{ env.VERSION }}_x64_Test/CelestiaWinUI_${{ env.VERSION }}_x64.msix \
             $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_ARM64_Test/CelestiaWinUI_${{ env.VERSION }}_ARM64.msix \
             $RUNNER_TEMP/CelestiaSL-x64/CelestiaWinUI_${{ env.VERSION }}_x64_Test/Dependencies/x64/* \
-            $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_arm64_Test/Dependencies/ARM64/*
+            $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_ARM64_Test/Dependencies/ARM64/*
 
