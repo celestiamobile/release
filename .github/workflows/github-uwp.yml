@@ -65,6 +65,78 @@ jobs:
           echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-uwp.txt
           echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-uwp.txt
 
+      - name: Generate AppInstaller Files
+        run: |
+          LATEST_URL="https://github.com/celestiamobile/CelestiaUWP/releases/latest/download"
+          VERSIONED_URL="https://github.com/celestiamobile/CelestiaUWP/releases/download/${{ env.VERSION }}"
+          cat > $RUNNER_TEMP/CelestiaWinUI_x64.appinstaller << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <AppInstaller
+            Uri="LATEST_URL_PLACEHOLDER/CelestiaWinUI_x64.appinstaller"
+            Version="VERSION_PLACEHOLDER"
+            xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
+            <MainPackage
+              Name="40507LinfengLi.Celestia"
+              Version="VERSION_PLACEHOLDER"
+              Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"
+              Uri="VERSIONED_URL_PLACEHOLDER/CelestiaWinUI_VERSION_PLACEHOLDER_x64.msix"
+              ProcessorArchitecture="x64" />
+            <Dependencies>
+              <Package
+                Name="Microsoft.VCLibs.140.00"
+                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+                Version="14.0.33519.0"
+                ProcessorArchitecture="x64"
+                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.x64.14.00.appx" />
+              <Package
+                Name="Microsoft.VCLibs.140.00.UWPDesktop"
+                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+                Version="14.0.33728.0"
+                ProcessorArchitecture="x64"
+                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.x64.14.00.Desktop.appx" />
+            </Dependencies>
+            <UpdateSettings>
+              <OnLaunch HoursBetweenUpdateChecks="0" />
+            </UpdateSettings>
+          </AppInstaller>
+          EOF
+          sed -i "s|VERSION_PLACEHOLDER|${{ env.VERSION }}|g; s|LATEST_URL_PLACEHOLDER|${LATEST_URL}|g; s|VERSIONED_URL_PLACEHOLDER|${VERSIONED_URL}|g" \
+            $RUNNER_TEMP/CelestiaWinUI_x64.appinstaller
+
+          cat > $RUNNER_TEMP/CelestiaWinUI_arm64.appinstaller << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <AppInstaller
+            Uri="LATEST_URL_PLACEHOLDER/CelestiaWinUI_arm64.appinstaller"
+            Version="VERSION_PLACEHOLDER"
+            xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
+            <MainPackage
+              Name="40507LinfengLi.Celestia"
+              Version="VERSION_PLACEHOLDER"
+              Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"
+              Uri="VERSIONED_URL_PLACEHOLDER/CelestiaWinUI_VERSION_PLACEHOLDER_arm64.msix"
+              ProcessorArchitecture="arm64" />
+            <Dependencies>
+              <Package
+                Name="Microsoft.VCLibs.140.00"
+                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+                Version="14.0.33519.0"
+                ProcessorArchitecture="arm64"
+                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.ARM64.14.00.appx" />
+              <Package
+                Name="Microsoft.VCLibs.140.00.UWPDesktop"
+                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+                Version="14.0.33728.0"
+                ProcessorArchitecture="arm64"
+                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.ARM64.14.00.Desktop.appx" />
+            </Dependencies>
+            <UpdateSettings>
+              <OnLaunch HoursBetweenUpdateChecks="0" />
+            </UpdateSettings>
+          </AppInstaller>
+          EOF
+          sed -i "s|VERSION_PLACEHOLDER|${{ env.VERSION }}|g; s|LATEST_URL_PLACEHOLDER|${LATEST_URL}|g; s|VERSIONED_URL_PLACEHOLDER|${VERSIONED_URL}|g" \
+            $RUNNER_TEMP/CelestiaWinUI_arm64.appinstaller
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -76,6 +148,8 @@ jobs:
             --title "${{ env.VERSION }}" \
             --notes-file release-notes-uwp.txt \
             --draft \
+            $RUNNER_TEMP/CelestiaWinUI_x64.appinstaller \
+            $RUNNER_TEMP/CelestiaWinUI_arm64.appinstaller \
             $RUNNER_TEMP/CelestiaSL-x64/CelestiaWinUI_${{ env.VERSION }}_x64_Test/CelestiaWinUI_${{ env.VERSION }}_x64.msix \
             $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_arm64_Test/CelestiaWinUI_${{ env.VERSION }}_arm64.msix \
             $RUNNER_TEMP/CelestiaSL-x64/CelestiaWinUI_${{ env.VERSION }}_x64_Test/Dependencies/x64/* \
