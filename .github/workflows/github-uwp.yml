@@ -53,7 +53,7 @@ jobs:
 
       - name: Set Version
         run: |
-          VERSION=$(ls -d $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_*_*_Test | head -1 | sed 's/.*CelestiaWinUI_\(.*\)_.*_Test/\1/')
+          VERSION=$(ls -d $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_*_ARM64_Test | head -1 | sed 's/.*CelestiaWinUI_\(.*\)_ARM64_Test/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Update Release Notes
@@ -113,7 +113,7 @@ jobs:
               Name="40507LinfengLi.Celestia"
               Version="VERSION_PLACEHOLDER"
               Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"
-              Uri="VERSIONED_URL_PLACEHOLDER/CelestiaWinUI_VERSION_PLACEHOLDER_arm64.msix"
+              Uri="VERSIONED_URL_PLACEHOLDER/CelestiaWinUI_VERSION_PLACEHOLDER_ARM64.msix"
               ProcessorArchitecture="arm64" />
             <Dependencies>
               <Package
@@ -151,7 +151,7 @@ jobs:
             $RUNNER_TEMP/CelestiaWinUI_x64.appinstaller \
             $RUNNER_TEMP/CelestiaWinUI_arm64.appinstaller \
             $RUNNER_TEMP/CelestiaSL-x64/CelestiaWinUI_${{ env.VERSION }}_x64_Test/CelestiaWinUI_${{ env.VERSION }}_x64.msix \
-            $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_arm64_Test/CelestiaWinUI_${{ env.VERSION }}_arm64.msix \
+            $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_ARM64_Test/CelestiaWinUI_${{ env.VERSION }}_ARM64.msix \
             $RUNNER_TEMP/CelestiaSL-x64/CelestiaWinUI_${{ env.VERSION }}_x64_Test/Dependencies/x64/* \
             $RUNNER_TEMP/CelestiaSL-arm64/CelestiaWinUI_${{ env.VERSION }}_arm64_Test/Dependencies/ARM64/*
 
