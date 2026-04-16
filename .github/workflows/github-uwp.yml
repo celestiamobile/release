@@ -67,75 +67,84 @@ jobs:
 
       - name: Generate AppInstaller Files
         run: |
-          LATEST_URL="https://github.com/celestiamobile/CelestiaUWP/releases/latest/download"
-          VERSIONED_URL="https://github.com/celestiamobile/CelestiaUWP/releases/download/${{ env.VERSION }}"
-          cat > $RUNNER_TEMP/CelestiaWinUI_x64.appinstaller << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <AppInstaller
-            Uri="LATEST_URL_PLACEHOLDER/CelestiaWinUI_x64.appinstaller"
-            Version="VERSION_PLACEHOLDER"
-            xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
-            <MainPackage
-              Name="40507LinfengLi.Celestia"
-              Version="VERSION_PLACEHOLDER"
-              Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"
-              Uri="VERSIONED_URL_PLACEHOLDER/CelestiaWinUI_VERSION_PLACEHOLDER_x64.msix"
-              ProcessorArchitecture="x64" />
-            <Dependencies>
-              <Package
-                Name="Microsoft.VCLibs.140.00"
-                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-                Version="14.0.33519.0"
-                ProcessorArchitecture="x64"
-                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.x64.14.00.appx" />
-              <Package
-                Name="Microsoft.VCLibs.140.00.UWPDesktop"
-                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-                Version="14.0.33728.0"
-                ProcessorArchitecture="x64"
-                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.x64.14.00.Desktop.appx" />
-            </Dependencies>
-            <UpdateSettings>
-              <OnLaunch HoursBetweenUpdateChecks="0" />
-            </UpdateSettings>
-          </AppInstaller>
-          EOF
-          sed -i "s|VERSION_PLACEHOLDER|${{ env.VERSION }}|g; s|LATEST_URL_PLACEHOLDER|${LATEST_URL}|g; s|VERSIONED_URL_PLACEHOLDER|${VERSIONED_URL}|g" \
-            $RUNNER_TEMP/CelestiaWinUI_x64.appinstaller
+          python3 << 'PYEOF'
+          import zipfile
+          import xml.etree.ElementTree as ET
+          import os
+          import glob
 
-          cat > $RUNNER_TEMP/CelestiaWinUI_arm64.appinstaller << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <AppInstaller
-            Uri="LATEST_URL_PLACEHOLDER/CelestiaWinUI_arm64.appinstaller"
-            Version="VERSION_PLACEHOLDER"
-            xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
-            <MainPackage
-              Name="40507LinfengLi.Celestia"
-              Version="VERSION_PLACEHOLDER"
-              Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"
-              Uri="VERSIONED_URL_PLACEHOLDER/CelestiaWinUI_VERSION_PLACEHOLDER_ARM64.msix"
-              ProcessorArchitecture="arm64" />
-            <Dependencies>
-              <Package
-                Name="Microsoft.VCLibs.140.00"
-                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-                Version="14.0.33519.0"
-                ProcessorArchitecture="arm64"
-                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.ARM64.14.00.appx" />
-              <Package
-                Name="Microsoft.VCLibs.140.00.UWPDesktop"
-                Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-                Version="14.0.33728.0"
-                ProcessorArchitecture="arm64"
-                Uri="VERSIONED_URL_PLACEHOLDER/Microsoft.VCLibs.ARM64.14.00.Desktop.appx" />
-            </Dependencies>
-            <UpdateSettings>
-              <OnLaunch HoursBetweenUpdateChecks="0" />
-            </UpdateSettings>
-          </AppInstaller>
-          EOF
-          sed -i "s|VERSION_PLACEHOLDER|${{ env.VERSION }}|g; s|LATEST_URL_PLACEHOLDER|${LATEST_URL}|g; s|VERSIONED_URL_PLACEHOLDER|${VERSIONED_URL}|g" \
-            $RUNNER_TEMP/CelestiaWinUI_arm64.appinstaller
+          def esc(value):
+              return value.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+
+          def extract_identity(appx_path):
+              with zipfile.ZipFile(appx_path) as z:
+                  manifest = z.read('AppxManifest.xml')
+              root = ET.fromstring(manifest)
+              for elem in root.iter():
+                  if elem.tag.endswith('}Identity') or elem.tag == 'Identity':
+                      return elem.attrib
+              return None
+
+          def generate_appinstaller(arch_lower, arch_msix, deps_dir, version, latest_url, versioned_url, output_path):
+              dep_entries = []
+              for appx in sorted(glob.glob(os.path.join(deps_dir, '*.appx'))):
+                  identity = extract_identity(appx)
+                  if not identity:
+                      continue
+                  filename = os.path.basename(appx)
+                  dep_entries.append(
+                      f'    <Package\n'
+                      f'      Name="{esc(identity.get("Name", ""))}"\n'
+                      f'      Publisher="{esc(identity.get("Publisher", ""))}"\n'
+                      f'      Version="{esc(identity.get("Version", ""))}"\n'
+                      f'      ProcessorArchitecture="{esc(identity.get("ProcessorArchitecture", arch_lower))}"\n'
+                      f'      Uri="{esc(versioned_url)}/{esc(filename)}" />'
+                  )
+              deps_xml = '\n'.join(dep_entries)
+
+              xml_content = (
+                  f'<?xml version="1.0" encoding="utf-8"?>\n'
+                  f'<AppInstaller\n'
+                  f'  Uri="{esc(latest_url)}/CelestiaWinUI_{esc(arch_lower)}.appinstaller"\n'
+                  f'  Version="{esc(version)}"\n'
+                  f'  xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">\n'
+                  f'  <MainPackage\n'
+                  f'    Name="40507LinfengLi.Celestia"\n'
+                  f'    Version="{esc(version)}"\n'
+                  f'    Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"\n'
+                  f'    Uri="{esc(versioned_url)}/CelestiaWinUI_{esc(version)}_{esc(arch_msix)}.msix"\n'
+                  f'    ProcessorArchitecture="{esc(arch_lower)}" />\n'
+                  f'  <Dependencies>\n'
+                  f'{deps_xml}\n'
+                  f'  </Dependencies>\n'
+                  f'  <UpdateSettings>\n'
+                  f'    <OnLaunch HoursBetweenUpdateChecks="0" />\n'
+                  f'  </UpdateSettings>\n'
+                  f'</AppInstaller>\n'
+              )
+
+              with open(output_path, 'w', encoding='utf-8') as f:
+                  f.write(xml_content)
+
+          version = os.environ['VERSION']
+          runner_temp = os.environ['RUNNER_TEMP']
+          latest_url = 'https://github.com/celestiamobile/CelestiaUWP/releases/latest/download'
+          versioned_url = f'https://github.com/celestiamobile/CelestiaUWP/releases/download/{version}'
+
+          generate_appinstaller(
+              'x64', 'x64',
+              f'{runner_temp}/CelestiaSL-x64/CelestiaWinUI_{version}_x64_Test/Dependencies/x64',
+              version, latest_url, versioned_url,
+              f'{runner_temp}/CelestiaWinUI_x64.appinstaller'
+          )
+
+          generate_appinstaller(
+              'arm64', 'ARM64',
+              f'{runner_temp}/CelestiaSL-arm64/CelestiaWinUI_{version}_ARM64_Test/Dependencies/ARM64',
+              version, latest_url, versioned_url,
+              f'{runner_temp}/CelestiaWinUI_arm64.appinstaller'
+          )
+          PYEOF
 
       - name: Create GitHub Release
         env:
