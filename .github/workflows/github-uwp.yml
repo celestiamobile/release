@@ -61,6 +61,19 @@ jobs:
           CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia ${{ inputs.branch }} | cut -f 1)
           CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization ${{ inputs.branch }} | cut -f 1)
           CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/${{ inputs.branch }}/.github/workflows/build.yml" | awk -F"'" '/CONTENT_COMMIT_HASH/ {print $2}')
+          cat >> release-notes-uwp.txt <<'EOF'
+          ## Installation
+
+          Download the `.appinstaller` file matching your PC's architecture and open it:
+
+          - **x64** (Intel / AMD): `CelestiaWinUI_x64.appinstaller`
+          - **ARM64** (Surface Pro X, Snapdragon): `CelestiaWinUI_arm64.appinstaller`
+
+          Windows App Installer will install Celestia and keep it updated automatically.
+
+          ---
+
+          EOF
           echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-uwp.txt
           echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-uwp.txt
           echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-uwp.txt
