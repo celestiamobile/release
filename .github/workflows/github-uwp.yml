@@ -86,6 +86,12 @@ jobs:
               return None
 
           def generate_appinstaller(arch_lower, arch_msix, deps_dir, version, latest_url, versioned_url, output_path):
+              package_dir = os.path.dirname(os.path.dirname(deps_dir))
+              main_msix = os.path.join(package_dir, f'CelestiaWinUI_{version}_{arch_msix}.msix')
+              main_identity = extract_identity(main_msix)
+              if not main_identity:
+                  raise RuntimeError(f'Could not read identity from {main_msix}')
+
               dep_entries = []
               for appx in sorted(glob.glob(os.path.join(deps_dir, '*.appx'))):
                   identity = extract_identity(appx)
@@ -109,9 +115,9 @@ jobs:
                   f'  Version="{esc(version)}"\n'
                   f'  xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">\n'
                   f'  <MainPackage\n'
-                  f'    Name="40507LinfengLi.Celestia"\n'
+                  f'    Name="{esc(main_identity.get("Name", ""))}"\n'
                   f'    Version="{esc(version)}"\n'
-                  f'    Publisher="CN=DFAB6BEB-215D-4D28-AB17-B4B02709A980"\n'
+                  f'    Publisher="{esc(main_identity.get("Publisher", ""))}"\n'
                   f'    Uri="{esc(versioned_url)}/CelestiaWinUI_{esc(version)}_{esc(arch_msix)}.msix"\n'
                   f'    ProcessorArchitecture="{esc(arch_lower)}" />\n'
                   f'  <Dependencies>\n'
