@@ -60,7 +60,7 @@ jobs:
         run: |
           CELESTIA_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia ${{ inputs.branch }} | cut -f 1)
           CELESTIA_LOCALIZATION_REPO_COMMIT=$(git ls-remote https://github.com/celestiamobile/CelestiaLocalization ${{ inputs.branch }} | cut -f 1)
-          CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/${{ inputs.branch }}/jobs/build.yml" | awk -F"'" '/contentCommitHash/ {print $2}')
+          CELESTIA_CONTENT_REPO_COMMIT=$(curl -s "https://raw.githubusercontent.com/celestiamobile/CelestiaUWP/${{ inputs.branch }}/.github/workflows/build.yml" | awk -F"'" '/CONTENT_COMMIT_HASH/ {print $2}')
           echo https://github.com/celestiamobile/Celestia/commit/$CELESTIA_REPO_COMMIT >> release-notes-uwp.txt
           echo https://github.com/celestiamobile/CelestiaLocalization/commit/$CELESTIA_LOCALIZATION_REPO_COMMIT >> release-notes-uwp.txt
           echo https://github.com/CelestiaProject/CelestiaContent/commit/$CELESTIA_CONTENT_REPO_COMMIT >> release-notes-uwp.txt
