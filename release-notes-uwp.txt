@@ -1,1 +1,2 @@
 1. Data update (2026-05-05)
+2. Fix distance unit not working in go to dialog
