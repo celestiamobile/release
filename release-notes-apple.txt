@@ -1,1 +1,2 @@
 1. Experimental sRGB support
+2. New Point Spread Function star style
