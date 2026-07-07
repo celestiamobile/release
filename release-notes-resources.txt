@@ -1,3 +1,1 @@
-1. Optimize memory usage
-2. Fix some crashes in loading
-3. Improve Modify handling for textures
+1. Add settings for shadow resolution
