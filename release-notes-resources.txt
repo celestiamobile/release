@@ -1,1 +1,2 @@
-1. Add settings for shadow resolution
+1. Data update (2026-07-20)
+2. Update atmosphere rendering
