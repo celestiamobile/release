@@ -1,3 +1,4 @@
-1. Data update (2026-07-24)
+1. Data update (2026-07-30)
 2. Update atmosphere rendering
 3. Add settings for shadow resolution and HDR tonemappiing
+4. Add support for more actions in Shortcuts
