@@ -1,2 +1,4 @@
 1. Data update (2026-08-02)
-2. Update to a new versioning system
+2. Apply ring and eclipse shadow to atmospheres
+3. Add more eclipse viewing options
+4. Update to a new versioning system

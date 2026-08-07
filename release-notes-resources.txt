@@ -1,1 +1,2 @@
-1. Data update (2026-07-30)
+1. Data update (2026-08-02)
+2. Apply ring and eclipse shadow to atmospheres
