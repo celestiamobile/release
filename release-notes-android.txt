@@ -1,3 +1,2 @@
-1. Data update (2026-08-02)
-2. Apply ring and eclipse shadow to atmospheres
-3. Update to a new versioning system
+1. Data update (2026-08-10)
+2. Fix PSF star visibility for daytime atmospheres
