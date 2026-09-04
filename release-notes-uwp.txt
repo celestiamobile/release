@@ -1,5 +1,2 @@
-1. Data update (2026-08-21)
-2. Fix PSF star visibility for daytime atmospheres
-3. Add ISO 8601 date display option
-4. Update default atmosphere render configuration
-5. Rearrange some of the settings
+1. Data update (2026-09-03)
+2. Fix multiple eclipse shadows
