@@ -1,4 +1,4 @@
-1. Data update (2026-09-03)
+1. Data update (2026-09-06)
 2. Fix multiple eclipse shadows
 3. Fix star rendering artifacts and transitions
 4. Fix renderer overlapping with bottom controls

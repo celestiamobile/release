@@ -65,9 +65,12 @@ notes.
 
 ## Step 3: Diff committed changes
 
-For each repo, run `git log --oneline --reverse <baseline>..HEAD` to list committed changes since
-the baseline. Read commit bodies (`git log -1 --format=%B <hash>`) and `git show --stat` for
-ambiguous ones to understand user-facing impact.
+For each code repo, run `git log --oneline --reverse <baseline>..HEAD` to list committed changes
+since the baseline. For `CelestiaContent`, use `<baseline>..HEAD` for
+`release-notes-resources.txt`, but use `<baseline>..<current-content-pin>` for each platform file,
+where `<current-content-pin>` is the `CONTENT_COMMIT_HASH` in that frontend's current
+`.github/workflows/build.yml`. Read commit bodies (`git log -1 --format=%B <hash>`) and
+`git show --stat` for ambiguous ones to understand user-facing impact.
 
 ## Step 4: Filter to user-facing changes only
 
@@ -90,14 +93,17 @@ specific unreleased OS version.
 
 ## Step 5: Write the files
 
-Always include a first "Data update (<date>)" line using the date of the most recent
-"Update data"/"Update content" commit in the relevant frontend repo (or `../CelestiaContent` HEAD
-date for `release-notes-resources.txt`). Then list the filtered, consolidated changes in the numbered
-format `1. ...`, `2. ...`, etc., matching the existing style in the files. Overwrite each file
-entirely — don't append to old content.
+Always include a first "Data update (<date>)" line. For each platform file, read
+`CONTENT_COMMIT_HASH` from that frontend's current `.github/workflows/build.yml`, then use the date
+of that commit in `../CelestiaContent`. For `release-notes-resources.txt`, use the date of
+`../CelestiaContent` HEAD. Then list the filtered, consolidated changes in the numbered format
+`1. ...`, `2. ...`, etc., matching the existing style in the files. Overwrite each file entirely —
+don't append to old content.
 
 ## Step 6: Sanity check
 
-Diff the four files against each other: `release-notes-resources.txt` items must be a subset of the
-other three (core + content only), and the shared core/content items should read identically across
-all four files (only frontend-specific bullets should differ).
+Diff the four files against each other. Shared core items should read identically across all four
+files. Content items and data-update dates in each platform file must match the
+`CONTENT_COMMIT_HASH` pinned by that frontend's current workflow; when all three pins equal
+`CelestiaContent` HEAD, the resources items must be a subset of every platform file and shared
+core/content items should read identically.
