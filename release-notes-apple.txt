@@ -1,4 +1,4 @@
-1. Data update (2026-09-06)
+1. Data update (2026-09-10)
 2. Fix multiple eclipse shadows
-3. Fix star rendering artifacts and transitions
+3. Fix PSF rendering bounds, transitions, and batch state
 4. Add support for upcoming system
