@@ -60,10 +60,9 @@ jobs:
           cd MobileCelestia
           git checkout ${{ inputs.branch }}
           cd fastlane/mac
-          CHANGELOG=$(cat $GITHUB_WORKSPACE/release-notes-apple.txt)
+          CHANGELOG=$(cat $GITHUB_WORKSPACE/release-notes-appstore-mac.txt)
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }} fastlane pilot upload \
             --pkg $RUNNER_TEMP/artifacts/Celestia.pkg \
             --submit_beta_review \
             --api_key_path $RUNNER_TEMP/appstore-connect-key.json \
             --changelog "$CHANGELOG"
-

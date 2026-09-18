@@ -4,4 +4,4 @@
 4. Update Kamo'oalewa data and add a shape model
 5. Update Didymos and Dimorphos data, models, and textures
 6. Improve OBA star texture quality
-7. Fix renderer overlapping with bottom controls
+7. Add support for iOS, iPadOS, and macOS 27

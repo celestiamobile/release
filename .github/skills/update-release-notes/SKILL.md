@@ -10,7 +10,9 @@ This repo (`upload-release`) holds the release notes shipped alongside Celestia 
 
 - `release-notes-resources.txt` — core-only notes (data/engine), used for the resources package.
 - `release-notes-android.txt` — AndroidCelestia notes.
-- `release-notes-apple.txt` — MobileCelestia (iOS/iPadOS/macOS/visionOS) notes.
+- `release-notes-appstore-ios.txt` — MobileCelestia App Store notes for iOS/iPadOS.
+- `release-notes-appstore-mac.txt` — MobileCelestia App Store notes for macOS.
+- `release-notes-github-apple.txt` — MobileCelestia GitHub release notes for all Apple platforms.
 - `release-notes-uwp.txt` — CelestiaUWP (Windows) notes.
 
 Each file is a simple numbered list (`1. ...`, `2. ...`, ...). When "updating" the notes, **replace
@@ -29,8 +31,10 @@ Assume these repos are checked out as siblings of `upload-release` (i.e. `../Cel
 - `../MobileCelestia` — Apple frontend (iOS/iPadOS/macOS/visionOS).
 - `../CelestiaUWP` — Windows/UWP frontend.
 
-`release-notes-resources.txt` only reflects `../Celestia` + `../CelestiaContent`. The other three
-files reflect `../Celestia` + `../CelestiaContent` + their respective frontend repo.
+`release-notes-resources.txt` only reflects `../Celestia` + `../CelestiaContent`. The other five
+files reflect `../Celestia` + `../CelestiaContent` + their respective frontend repo. Keep
+platform-specific MobileCelestia changes in the applicable Apple files; the GitHub Apple file can
+include changes across all Apple platforms.
 
 ## Step 1: Fetch latest
 
@@ -87,23 +91,23 @@ rendering/behavior, new user-facing features or settings, new OS/platform suppor
   explicitly asked to include them.
 
 Consolidate multiple related commits into one concise bullet (e.g. several "iOS 27 support" commits
-across Catalyst/UIKit/device-motion become one line). If a change references an upcoming/unreleased
-OS version, phrase it generically (e.g. "Add support for upcoming system") rather than naming the
-specific unreleased OS version.
+across Catalyst/UIKit/device-motion become one line). Use explicit platform names and versions in
+OS support entries, scoped to each note file (for example, "Add support for iOS and iPadOS 27" in
+the iOS App Store notes and "Add support for macOS 27" in the Mac App Store notes).
 
 ## Step 5: Write the files
 
-Always include a first "Data update (<date>)" line. For each platform file, read
-`CONTENT_COMMIT_HASH` from that frontend's current `.github/workflows/build.yml`, then use the date
-of that commit in `../CelestiaContent`. For `release-notes-resources.txt`, use the date of
-`../CelestiaContent` HEAD. Then list the filtered, consolidated changes in the numbered format
-`1. ...`, `2. ...`, etc., matching the existing style in the files. Overwrite each file entirely —
-don't append to old content.
+List the filtered, consolidated changes in the numbered format `1. ...`, `2. ...`, etc., matching
+the existing style in the files. When individual content changes are listed, do not also add a
+generic "Data update" entry. If content changes are summarized only as a generic update, use
+"Data update (<date>)", where the date comes from the content commit pinned by the applicable
+frontend workflow (or `../CelestiaContent` HEAD for the resources file). Overwrite each file
+entirely — don't append to old content.
 
 ## Step 6: Sanity check
 
-Diff the four files against each other. Shared core items should read identically across all four
-files. Content items and data-update dates in each platform file must match the
+Diff the six files against each other. Shared core items should read identically across all six
+files. Content items and any data-update dates in each platform file must match the
 `CONTENT_COMMIT_HASH` pinned by that frontend's current workflow; when all three pins equal
 `CelestiaContent` HEAD, the resources items must be a subset of every platform file and shared
 core/content items should read identically.
