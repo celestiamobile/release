@@ -1,7 +1,7 @@
-1. Fix multiple eclipse shadows
-2. Fix PSF rendering bounds, transitions, and batch state
-3. Update the exoplanet catalog
-4. Update Kamo'oalewa data and add a shape model
-5. Update Didymos and Dimorphos data, models, and textures
-6. Improve OBA star texture quality
-7. Fix renderer overlapping with bottom controls
+1. Add SkyPlane reference frames for objects
+2. Fix cloud scattering above atmospheres
+3. Update official star names
+4. Update the exoplanet catalog
+5. Add a red giant star texture
+6. Use the updated Android interface for all users
+7. Delay data collection until privacy consent is granted
