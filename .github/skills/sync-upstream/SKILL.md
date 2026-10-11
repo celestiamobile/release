@@ -73,11 +73,13 @@ If there are added/removed `.cpp`/`.h` files under `src/`:
   project in Xcode and add/remove the files via the UI, then diff the result.
 - **CelestiaUWP**: check `*.vcxproj`/`*.vcxproj.filters` for explicit `<ClCompile Include=...>` /
   `<ClInclude Include=...>` entries mirroring `../Celestia/src`; add/remove similarly to the above.
-- **AndroidCelestia**: the Android build invokes Celestia's own `CMakeLists.txt` as a subdirectory
-  (via the NDK/CMake toolchain) rather than re-listing sources, so added/removed files are usually
-  already handled by Celestia's own `CMakeLists.txt` changes merged in Step 1 — normally no
-  AndroidCelestia-side file-list edit is needed, but double check if the upstream change touched
-  build options/flags (see below).
+- **AndroidCelestia**: `Celestia/src/main/cpp/CMakeLists.txt` lists Celestia sources explicitly
+  (`${CELESTIA_SRC_DIR}/...`), so update it for added/removed files too (a stale entry fails CMake
+  configure with "No SOURCES given"). Verify every listed path still exists under `../Celestia/src`.
+  Also check build options/flags (see below).
+- **Removed/renamed headers used by frontend code**: grep CelestiaCore (`.mm`/`.h`), CelestiaUWP
+  (`.cpp`) and AndroidCelestia for includes/usages of removed headers (e.g. `celcompat/numbers.h`
+  → use `std::numbers`) and fix them; CI fails otherwise.
 
 Also check for compiler/CMake option changes (new `option()`/`target_compile_definitions` etc. in
 Celestia's `CMakeLists.txt` files) that might need mirroring into AndroidCelestia's Gradle/CMake
@@ -94,6 +96,10 @@ changes):
   `AndroidCelestia/app/src/main/java/space/celestia/mobilecelestia/MainActivity.kt` (it's a string
   like `"182"` — increment it). This forces the app to redo its one-time data setup/copy on next
   launch.
+- Update the history comment directly below the constant, format
+  `// 183: 26.10.0 Data update (<full CelestiaContent hash>)`, where the version is the app's
+  current version. If the top comment already has the current version, replace that line (don't add
+  a new one); only add a new line when the version differs.
 
 If nothing under those paths changed meaningfully, leave `CURRENT_DATA_VERSION` alone.
 

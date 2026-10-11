@@ -1,6 +1,10 @@
 1. Add SkyPlane reference frames for objects
 2. Fix cloud scattering above atmospheres
-3. Update official star names
-4. Update the exoplanet catalog
-5. Add a red giant star texture
-6. Improve rendering and controls for devices with corner safe areas and vertical toolbars
+3. Fix display of negative rotation periods
+4. Update official star names
+5. Update the exoplanet catalog
+6. Add a red giant star texture
+7. Update asteroid data and models
+8. Add Donaldjohanson and Torifune asteroids
+9. Improve rendering and controls for devices with corner safe areas and vertical toolbars
+10. Require iOS and iPadOS 16 or later, and macOS 13 or later
