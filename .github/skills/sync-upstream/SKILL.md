@@ -1,6 +1,6 @@
 ---
 name: sync-upstream
-description: Use when asked to sync Celestia with upstream (CelestiaProject), pull in the latest CelestiaContent, and propagate the resulting changes across the frontend repos (MobileCelestia/CelestiaCore, AndroidCelestia, CelestiaUWP) — including project-file updates for new/removed source files, Android CURRENT_DATA_VERSION bumps, and AndroidCelestia's versions.txt.
+description: Use when asked to sync Celestia with upstream (CelestiaProject), pull in the latest CelestiaContent, and propagate the resulting changes across the frontend repos (MobileCelestia, AndroidCelestia, CelestiaUWP) — including project-file updates for new/removed source files, Android CURRENT_DATA_VERSION bumps, and AndroidCelestia's versions.txt.
 license: MIT
 ---
 
@@ -21,11 +21,9 @@ Assume these are checked out as siblings (i.e. `../Celestia`, etc.), same layout
   happens on `develop`.
 - `../CelestiaContent` — shared data/add-on content. `origin` = `CelestiaProject/CelestiaContent`
   directly (no fork/upstream split). Lives on `master`, not tagged per release.
-- `../MobileCelestia` — Apple frontend (SPM app). References `../CelestiaCore` and
-  `../CelestiaContent` at CI/build time, not via submodule.
-- `../CelestiaCore` — Xcode framework wrapper consumed by MobileCelestia. `origin` =
-  `celestiamobile/CelestiaCore`. Not pinned to a specific commit by MobileCelestia's workflow (CI
-  checks out its default branch fresh each time).
+- `../MobileCelestia` — Apple frontend (SPM app). Contains the `CelestiaCore` Objective-C++
+  framework target (sources in `CelestiaCore/`) and references `../Celestia` and
+  `../CelestiaContent` at CI/build time, not via submodule. Build scripts live in `scripts/`.
 - `../AndroidCelestia` — Android frontend (Gradle).
 - `../CelestiaUWP` — Windows/UWP frontend (MSBuild/vcxproj).
 
@@ -63,7 +61,7 @@ git diff <old>..<new> --diff-filter=AD --name-status -- src
 
 If there are added/removed `.cpp`/`.h` files under `src/`:
 
-- **CelestiaCore** (`../CelestiaCore/CelestiaCore.xcodeproj/project.pbxproj`): there's a single
+- **CelestiaCore target** (`../MobileCelestia/MobileCelestia.xcodeproj/project.pbxproj`): there's a single
   `PBXGroup` named `Core` with `path = ../Celestia/src` — its nested groups mirror the `src/`
   subdirectory tree (e.g. `celengine`, `celscript`), and file children are plain filenames
   (`path = foo.cpp; sourceTree = "<group>"`) resolved relative to their containing group. New
@@ -77,7 +75,7 @@ If there are added/removed `.cpp`/`.h` files under `src/`:
   (`${CELESTIA_SRC_DIR}/...`), so update it for added/removed files too (a stale entry fails CMake
   configure with "No SOURCES given"). Verify every listed path still exists under `../Celestia/src`.
   Also check build options/flags (see below).
-- **Removed/renamed headers used by frontend code**: grep CelestiaCore (`.mm`/`.h`), CelestiaUWP
+- **Removed/renamed headers used by frontend code**: grep `../MobileCelestia/CelestiaCore` (`.mm`/`.h`), CelestiaUWP
   (`.cpp`) and AndroidCelestia for includes/usages of removed headers (e.g. `celcompat/numbers.h`
   → use `std::numbers`) and fix them; CI fails otherwise.
 
