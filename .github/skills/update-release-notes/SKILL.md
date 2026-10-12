@@ -45,13 +45,15 @@ notes.
 
 ## Step 2: Find the last-release baseline commit per repo
 
-- **AndroidCelestia / MobileCelestia**: find the latest release tag, named like `26_8_1_rc1`
-  (`MAJOR_MINOR_PATCH_rcN`, underscores). Use `git tag -l | sort -V | tail`. This tag is the
-  baseline.
+- **AndroidCelestia / MobileCelestia**: release tags now use dotted versions like `26.10.0`.
+  Older releases use tags like `26_8_1_rc1` (`MAJOR_MINOR_PATCH_rcN`, underscores). Use
+  `gh release list --repo celestiamobile/<repo> --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName'`
+  to find the newest published release regardless of tag format. This tag is the baseline.
 - **CelestiaUWP**: find the latest release tag, named like `26.8.1.0` (dotted version). This tag is
   the baseline.
-- **Celestia (core)**: this repo is usually **not** tagged for every frontend release (e.g. it may
-  only have `26_8_0_rc1` while the frontends are already at `26_8_1_rc1`). The frontend workflows
+- **Celestia (core)**: resource releases also use dotted tags like `26.10.0`, but this repo is
+  usually **not** tagged for every frontend release (e.g. it may only have `26.8.0` while the
+  frontends are already at `26.8.1`). The frontend workflows
   (`.github/workflows/build.yml`) check out `celestiamobile/Celestia` without pinning a ref, so the
   real baseline is whatever commit was `HEAD` of Celestia's default branch at the moment the
   frontend release tags were cut. To find it:

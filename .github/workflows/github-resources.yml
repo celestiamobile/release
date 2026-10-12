@@ -13,10 +13,6 @@ on:
         description: 'Branch'
         required: true
         default: 'develop'
-      rc:
-        description: 'RC number'
-        required: true
-        default: '1'
 
 jobs:
   release:
@@ -46,12 +42,10 @@ jobs:
           github-token: ${{ secrets.GH_PAT }}
           path: '${{ runner.temp }}/apk'
 
-      - name: Set Version and Tag
+      - name: Set Version
         run: |
           VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/AndroidCelestia/${{ inputs.branch }}/app/src/main/AndroidManifest.xml" | awk -F'"' '/android.versionName=/ {print $2; exit}')
-          TAG=$(echo $VERSION | sed 's/\./_/g')_rc${{ inputs.rc }}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Extract CelestiaResources
         run: unzip -o $RUNNER_TEMP/apk/app-sideload-release-unsigned.apk 'assets/CelestiaResources/*' -d $RUNNER_TEMP/extracted
@@ -73,11 +67,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           COMMIT=$(git ls-remote https://github.com/celestiamobile/Celestia ${{ inputs.branch }} | cut -f 1)
-          gh release create ${{ env.TAG }} \
+          gh release create ${{ env.VERSION }} \
             --repo celestiamobile/Celestia \
             --target $COMMIT \
             --title "${{ env.VERSION }}" \
             --notes-file release-notes-resources.txt \
             --draft \
             $RUNNER_TEMP/CelestiaResources${{ env.VERSION }}.zip
-

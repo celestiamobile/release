@@ -13,10 +13,6 @@ on:
         description: 'Branch'
         required: true
         default: 'develop'
-      rc:
-        description: 'RC number'
-        required: true
-        default: '1'
 
 jobs:
   release:
@@ -46,15 +42,13 @@ jobs:
           github-token: ${{ secrets.GH_PAT }}
           path: '${{ runner.temp }}/apk'
 
-      - name: Set Version and Tag
+      - name: Set Version
         run: |
           VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/AndroidCelestia/${{ inputs.branch }}/app/src/main/AndroidManifest.xml" | awk -F'"' '/android.versionName=/ {print $2; exit}')
-          TAG=$(echo $VERSION | sed 's/\./_/g')_rc${{ inputs.rc }}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Rename File
-        run: mv $RUNNER_TEMP/apk/app-sideload-release-unsigned.apk $RUNNER_TEMP/celestia-${{ env.VERSION }}-rc${{ inputs.rc }}.apk
+        run: mv $RUNNER_TEMP/apk/app-sideload-release-unsigned.apk $RUNNER_TEMP/celestia-${{ env.VERSION }}.apk
 
       - name: Update Release Notes
         run: |
@@ -70,11 +64,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           COMMIT=$(git ls-remote https://github.com/celestiamobile/AndroidCelestia ${{ inputs.branch }} | cut -f 1)
-          gh release create ${{ env.TAG }} \
+          gh release create ${{ env.VERSION }} \
             --repo celestiamobile/AndroidCelestia \
             --target $COMMIT \
             --title "${{ env.VERSION }}" \
             --notes-file release-notes-android.txt \
             --draft \
-            $RUNNER_TEMP/celestia-${{ env.VERSION }}-rc${{ inputs.rc }}.apk
-
+            $RUNNER_TEMP/celestia-${{ env.VERSION }}.apk
