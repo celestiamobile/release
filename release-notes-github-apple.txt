@@ -7,4 +7,5 @@
 7. Update asteroid data and models
 8. Add Donaldjohanson and Torifune asteroids
 9. Improve rendering and controls for devices with corner safe areas and vertical toolbars
-10. Require iOS and iPadOS 16 or later, and macOS 13 or later
+10. Improve window restoration and prevent duplicate or empty windows on macOS
+11. Require iOS and iPadOS 16 or later, and macOS 13 or later
