@@ -1,3 +1,8 @@
 1. Add Illuminant E as a white point for blackbody star colors
-2. Add comet 67P/Churyumov-Gerasimenko with a 3D model and texture
-3. Update official star names to the October 2026 IAU list
+2. Match tinted illumination to the selected star colors
+3. Improve luminosity calculations for stars with custom temperatures
+4. Fix coordinate encoding and validation in shared Celestia URLs
+5. Fix parsing of dates with UTC time zone suffixes
+6. Fix Lua script handling of label and line colors
+7. Add comet 67P/Churyumov-Gerasimenko with a 3D model and texture
+8. Update official star names to the October 2026 IAU list
