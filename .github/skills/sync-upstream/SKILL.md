@@ -97,7 +97,9 @@ changes):
 - Update the history comment directly below the constant, format
   `// 183: 26.10.0 Data update (<full CelestiaContent hash>)`, where the version is the app's
   current version. If the top comment already has the current version, replace that line (don't add
-  a new one); only add a new line when the version differs.
+  a new one); only add a new line when the version differs. When replacing an entry for the same
+  app version, preserve any existing localization-update wording (e.g. `Localization and data update`).
+  Do not carry localization-update wording over from an entry for a different app version.
 
 If nothing under those paths changed meaningfully, leave `CURRENT_DATA_VERSION` alone.
 
