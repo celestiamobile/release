@@ -2,7 +2,13 @@
 2. Match tinted illumination to the selected star colors
 3. Improve luminosity calculations for stars with custom temperatures
 4. Fix coordinate encoding and validation in shared Celestia URLs
-5. Fix parsing of dates with UTC time zone suffixes
-6. Fix Lua script handling of label and line colors
-7. Add comet 67P/Churyumov-Gerasimenko with a 3D model and texture
-8. Update official star names to the October 2026 IAU list
+5. Support Celestia URLs without a fixed date when using simulation or system time
+6. Improve date parsing, including UTC time zone suffixes and ISO dates without seconds
+7. Fix Lua script handling of label and line colors
+8. Add comet 67P/Churyumov-Gerasimenko with a 3D model and texture
+9. Update official star names to the October 2026 IAU list
+10. Add trans-Neptunian objects 2026 ED138 and 2002 XV93, including an atmosphere for 2002 XV93
+11. Preserve installed add-ons if an update fails or is cancelled
+12. Improve add-on download cancellation and cleanup
+13. Fix eclipse search cancellation and restore search controls afterwards
+14. Support add-ons with optional checksums
