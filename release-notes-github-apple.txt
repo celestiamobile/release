@@ -13,3 +13,4 @@
 13. Improve selection menus in settings, flight mode, and Go To
 14. Fix game controller commands and stuck input after focus loss or disconnection
 15. Show the localized app name in Finder on macOS
+16. Fix a texture array overflow when rendering models with multiple texture maps

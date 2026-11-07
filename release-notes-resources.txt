@@ -8,3 +8,4 @@
 8. Add comet 67P/Churyumov-Gerasimenko with a 3D model and texture
 9. Update official star names to the October 2026 IAU list
 10. Add trans-Neptunian objects 2026 ED138 and 2002 XV93, including an atmosphere for 2002 XV93
+11. Fix a texture array overflow when rendering models with multiple texture maps

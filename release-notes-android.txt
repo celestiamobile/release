@@ -11,3 +11,4 @@
 11. Preserve installed add-ons if an update fails or is cancelled
 12. Improve add-on download cancellation and error reporting
 13. Fix eclipse search cancellation
+14. Fix a texture array overflow when rendering models with multiple texture maps

@@ -14,3 +14,4 @@
 14. Fix game controller commands and stuck input after focus loss or disconnection
 15. Refresh purchase and subscription status correctly after transaction updates
 16. Show the localized app name in Finder on macOS
+17. Fix a texture array overflow when rendering models with multiple texture maps

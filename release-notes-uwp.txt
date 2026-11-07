@@ -12,3 +12,4 @@
 12. Improve add-on download cancellation and cleanup
 13. Fix eclipse search cancellation and restore search controls afterwards
 14. Support add-ons with optional checksums
+15. Fix a texture array overflow when rendering models with multiple texture maps
