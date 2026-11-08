@@ -13,3 +13,5 @@
 13. Fix eclipse search cancellation and restore search controls afterwards
 14. Support add-ons with optional checksums
 15. Fix a texture array overflow when rendering models with multiple texture maps
+16. Keep object context menus responsive in large systems, with Show More for additional objects
+17. Limit search suggestions to keep large catalogs responsive

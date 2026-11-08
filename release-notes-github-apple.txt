@@ -14,3 +14,8 @@
 14. Fix game controller commands and stuck input after focus loss or disconnection
 15. Show the localized app name in Finder on macOS
 16. Fix a texture array overflow when rendering models with multiple texture maps
+17. Keep object context menus responsive in large systems, with Show More for additional objects
+18. Improve search responsiveness and prevent outdated results from being selected
+19. Keep rendering active during rotation and resize transitions
+20. Improve external-display mirroring on iOS and iPadOS
+21. Fix shutdown races when closing the main window on macOS

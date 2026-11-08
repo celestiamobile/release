@@ -15,3 +15,7 @@
 15. Refresh purchase and subscription status correctly after transaction updates
 16. Show the localized app name in Finder on macOS
 17. Fix a texture array overflow when rendering models with multiple texture maps
+18. Keep object context menus responsive in large systems, with Show More for additional objects
+19. Improve search responsiveness and prevent outdated results from being selected
+20. Keep rendering active during window resizing
+21. Fix shutdown races when closing the main window on macOS

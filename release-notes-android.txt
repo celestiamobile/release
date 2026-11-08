@@ -12,3 +12,7 @@
 12. Improve add-on download cancellation and error reporting
 13. Fix eclipse search cancellation
 14. Fix a texture array overflow when rendering models with multiple texture maps
+15. Keep object context menus responsive in large systems, with Show More for additional objects
+16. Limit search suggestions to keep large catalogs responsive
+17. Fix startup when external-display routing is unavailable
+18. Reduce saved-state size when browsing add-ons
