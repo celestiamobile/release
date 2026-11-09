@@ -7,8 +7,8 @@ license: MIT
 # Sync Upstream Celestia
 
 Pulls `CelestiaProject/Celestia` upstream changes into the `celestiamobile/Celestia` fork's
-`develop` branch, checks `CelestiaContent` is current, then propagates anything that affects the
-frontends.
+`develop` branch, checks `CelestiaContent` and `CelestiaLocalization` are current, then propagates
+anything that affects the frontends.
 
 ## Sibling repos
 
@@ -21,6 +21,8 @@ Assume these are checked out as siblings (i.e. `../Celestia`, etc.), same layout
   happens on `develop`.
 - `../CelestiaContent` — shared data/add-on content. `origin` = `CelestiaProject/CelestiaContent`
   directly (no fork/upstream split). Lives on `master`, not tagged per release.
+- `../CelestiaLocalization` — shared translations. `origin` = `celestiamobile/CelestiaLocalization`;
+  lives on `develop`.
 - `../MobileCelestia` — Apple frontend (SPM app). Contains the `CelestiaCore` Objective-C++
   framework target (sources in `CelestiaCore/`) and references `../Celestia` and
   `../CelestiaContent` at CI/build time, not via submodule. Build scripts live in `scripts/`.
@@ -49,6 +51,15 @@ Assume these are checked out as siblings (i.e. `../Celestia`, etc.), same layout
 just compare `master` against `origin/master`. If `origin/master` is ahead, fast-forward
 (`git merge --ff-only origin/master`) — this repo is not expected to carry local divergent commits.
 Record `git rev-parse origin/master` (full hash) for Step 5.
+
+### Check CelestiaLocalization
+
+Always fetch `origin` in `../CelestiaLocalization` too. Compare `develop` with `origin/develop`
+and fast-forward if behind, preserving unrelated local work; do not overwrite divergent commits.
+Record `git rev-parse origin/develop` for Step 5. Before updating Android's `versions.txt`, compare
+its existing `CelestiaLocalization` revision with this fetched revision and inspect the changes.
+Localization updates affecting Android's installed data also require the data-version bump in
+Step 4, even when core and CelestiaContent have not changed.
 
 ## Step 3: Diff for frontend project-file impact
 
@@ -87,8 +98,9 @@ args or CelestiaUWP's project property sheets.
 
 Still using the Step 3 diff range, check content under `shaders/`, `fonts/`, `locale/`, `images/`,
 `scripts/` in `../Celestia`, and any content-affecting change in `../CelestiaContent` since its last
-pin. If there's a real data/shader update a running app needs to pick up (not just metadata/doc
-changes):
+pin. Also inspect `CelestiaLocalization` changes since the revision currently recorded in Android's
+`versions.txt`. If there's a real data/shader/localization update a running app needs to pick up
+(not just metadata/doc changes or translations used only by other platforms):
 
 - Bump `CURRENT_DATA_VERSION` in
   `AndroidCelestia/app/src/main/java/space/celestia/mobilecelestia/MainActivity.kt` (it's a string
@@ -100,8 +112,11 @@ changes):
   a new one); only add a new line when the version differs. When replacing an entry for the same
   app version, preserve any existing localization-update wording (e.g. `Localization and data update`).
   Do not carry localization-update wording over from an entry for a different app version.
+- For new localization changes, use `Localization update` or `Localization and data update` as
+  appropriate. Bump the counter only once per sync when data and localization both change.
 
-If nothing under those paths changed meaningfully, leave `CURRENT_DATA_VERSION` alone.
+If neither installed data nor Android-relevant localization changed meaningfully, leave
+`CURRENT_DATA_VERSION` alone.
 
 ## Step 5: Update AndroidCelestia versions.txt
 
@@ -115,9 +130,10 @@ CelestiaLocalization=<short hash>
 apple-android-dependencies=<short hash>
 ```
 
-Update the `Celestia=` line to the new `develop` HEAD short hash from Step 1, and `CelestiaContent=`
-to the short hash from Step 2 (only touch the two lines relevant to this sync; leave
-`CelestiaLocalization`/`apple-android-dependencies` unless they were also part of this sync).
+Update the `Celestia=` line to the new `develop` HEAD short hash from Step 1, `CelestiaContent=`
+to the content short hash from Step 2, and `CelestiaLocalization=` to the fetched localization
+short hash from Step 2. Always check all three revisions during a sync. Leave
+`apple-android-dependencies` unchanged unless dependencies were also part of this sync.
 
 ## Step 6: Check CONTENT_COMMIT_HASH pins
 
