@@ -1,15 +1,8 @@
-1. Improve star colors and luminosity calculations, add Illuminant E, and match tinted illumination to the selected star colors
-2. Fix black centers in bright stars and rendering problems with textured models
-3. Fix shared Celestia URL encoding and validation, and support URLs that follow simulation or system time
-4. Improve date parsing, including UTC time zone suffixes and ISO dates without seconds
-5. Fix Lua script handling of label and line colors
-6. Add comet 67P/Churyumov-Gerasimenko with a 3D model and texture
-7. Update official star names to the October 2026 IAU list and refresh the exoplanet catalog for November 2026
-8. Add trans-Neptunian objects 2026 ED138 and 2002 XV93, including an atmosphere for 2002 XV93
-9. Preserve installed add-ons if an update fails or is cancelled
-10. Fix eclipse search cancellation
-11. Improve selection menus in settings, flight mode, and Go To, and keep object context menus responsive in large systems
-12. Fix game controller commands and stuck input after focus loss or disconnection
-13. Refresh purchase and subscription status correctly after transaction updates
-14. Add persistent recent searches, improve search responsiveness, and prevent outdated results from being selected
-15. Keep rendering active during rotation and resizing, and improve external-display mirroring
+1. Improve star colors, lighting, and rendering of galaxies and textured models
+2. Fix camera jumps, shared links, date parsing, and script color settings
+3. Add comet 67P/Churyumov-Gerasimenko and distant objects 2026 ED138 and 2002 XV93
+4. Update star names and the exoplanet catalog
+5. Add recent searches and improve search and selection menus
+6. Fix add-on updates, eclipse search cancellation, and game controller input
+7. Improve rotation, resizing, and external-display mirroring
+8. Fix purchase and subscription status updates
