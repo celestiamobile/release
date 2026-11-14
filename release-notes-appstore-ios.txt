@@ -2,7 +2,8 @@
 2. Fix camera jumps, shared links, date parsing, and script color settings
 3. Add comet 67P/Churyumov-Gerasimenko and distant objects 2026 ED138 and 2002 XV93
 4. Update star names and the exoplanet catalog
-5. Add recent searches and improve search and selection menus
+5. Add recent searches, improve search and selection menus, and update translations
 6. Fix add-on updates, eclipse search cancellation, and game controller input
-7. Improve rotation, resizing, and external-display mirroring
+7. Improve animation smoothness, rotation, resizing, and external-display mirroring
 8. Fix purchase and subscription status updates
+9. Pan, twist, and zoom with two fingers; swipe from the screen edge to restore hidden controls

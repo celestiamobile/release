@@ -4,4 +4,4 @@
 4. Update star names and the exoplanet catalog
 5. Add recent searches and make search and object menus more responsive
 6. Improve add-on updates, download cancellation, and eclipse searches
-7. Improve reliability when closing the app or encountering graphics errors
+7. Improve performance when anti-aliasing is unavailable and reliability when closing the app
