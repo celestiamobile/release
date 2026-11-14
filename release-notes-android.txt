@@ -1,8 +1,9 @@
-1. Improve star colors, lighting, and rendering of galaxies and textured models
+1. Improve star colors, lighting, labels, and rendering of galaxies and textured models
 2. Fix camera jumps, shared links, date parsing, and script color settings
 3. Add comet 67P/Churyumov-Gerasimenko and distant objects 2026 ED138 and 2002 XV93
 4. Update star names and the exoplanet catalog
-5. Add recent searches, improve menu responsiveness, and update translations
+5. Add recent searches, improve menus and bookmarks, and update translations
 6. Improve add-on updates, download cancellation, and eclipse searches
 7. Fix screenshots and startup failures on some devices
-8. Pan, twist, and zoom with two fingers; restore hidden controls with Back
+8. Add optional two-finger pan and twist; restore hidden controls with Back
+9. Add separate anti-aliasing settings for scenes and overlays
