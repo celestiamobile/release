@@ -7,4 +7,4 @@
 7. Smooth animations and external displays; fix dialog freezes on iPadOS 27.3+
 8. Fix purchase and subscription status updates
 9. Add optional two-finger pan and twist; restore hidden controls with an edge swipe
-10. Add separate anti-aliasing settings for scenes and overlays
+10. Separate scene and overlay anti-aliasing; apply scene changes without restarting

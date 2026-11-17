@@ -6,4 +6,4 @@
 6. Improve add-on updates, download cancellation, and eclipse searches
 7. Fix screenshots and startup failures on some devices
 8. Add optional two-finger pan and twist; restore hidden controls with Back
-9. Add separate anti-aliasing settings for scenes and overlays
+9. Separate scene and overlay anti-aliasing; apply scene changes without restarting
