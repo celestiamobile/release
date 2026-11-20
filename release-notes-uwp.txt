@@ -1,4 +1,4 @@
-1. Improve lighting, stars, labels, and textures; add ACES and Reinhard tone mapping
+1. Improve lighting, stars, labels, model colors, textures, and planetary rings; add ACES and Reinhard tone mapping
 2. Fix camera jumps, shared links, date parsing, and script color settings
 3. Add comet 67P/Churyumov-Gerasimenko and distant objects 2026 ED138 and 2002 XV93
 4. Update star names and the exoplanet catalog
