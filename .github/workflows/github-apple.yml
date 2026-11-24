@@ -25,13 +25,19 @@ jobs:
       - name: Resolve Run ID
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+          BUILD_BRANCH: ${{ inputs.branch }}
         run: |
-          if [ -n "${{ inputs.run_id }}" ]; then
-            echo "RESOLVED_RUN_ID=${{ inputs.run_id }}" >> $GITHUB_ENV
+          if [ -n "$INPUT_RUN_ID" ]; then
+            RUN_ID="$INPUT_RUN_ID"
           else
-            RUN_ID=$(gh api "repos/celestiamobile/MobileCelestia/actions/workflows/build.yml/runs?branch=${{ inputs.branch }}&status=success&per_page=1" --jq '.workflow_runs[0].id')
-            echo "RESOLVED_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+            RUN_ID=$(gh api "repos/celestiamobile/MobileCelestia/actions/workflows/build.yml/runs?branch=$BUILD_BRANCH&status=success&per_page=1" --jq '.workflow_runs[0].id')
           fi
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]] || { echo "No valid build run ID found" >&2; exit 1; }
+          BUILD_COMMIT=$(gh api "repos/celestiamobile/MobileCelestia/actions/runs/$RUN_ID" --jq '.head_sha')
+          [[ "$BUILD_COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid build commit" >&2; exit 1; }
+          echo "RESOLVED_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "BUILD_COMMIT=$BUILD_COMMIT" >> "$GITHUB_ENV"
 
       - name: Download macOS Sideload Build
         uses: actions/download-artifact@v4
@@ -44,11 +50,28 @@ jobs:
 
       - name: Set Version
         run: |
-          VERSION=$(curl -s "https://raw.githubusercontent.com/celestiamobile/MobileCelestia/${{ inputs.branch }}/MobileCelestia.xcodeproj/project.pbxproj" | awk -F'[=; ]' '/SHARED_BUILD_VERSION/{print $4; exit}')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          curl --fail --silent --show-error \
+            "https://raw.githubusercontent.com/celestiamobile/MobileCelestia/$BUILD_COMMIT/MobileCelestia.xcodeproj/project.xcproj" \
+            --output "$RUNNER_TEMP/project.xcproj"
+          VERSION=$(python3 - "$RUNNER_TEMP/project.xcproj" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          project = pathlib.Path(sys.argv[1]).read_text()
+          versions = re.findall(r'"SHARED_BUILD_VERSION"\s*:\s*"([^"]+)"', project)
+          if len(versions) != 1 or re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', versions[0]) is None:
+              sys.exit("Expected one dotted SHARED_BUILD_VERSION in project.xcproj")
+          print(versions[0])
+          PY
+          )
+          git check-ref-format "refs/tags/$VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Rename File
-        run: mv $RUNNER_TEMP/artifacts/App.zip $RUNNER_TEMP/Celestia_${{ env.VERSION }}_macOS.zip
+        run: |
+          : "${VERSION:?Release version is required}"
+          mv "$RUNNER_TEMP/artifacts/App.zip" "$RUNNER_TEMP/Celestia_${VERSION}_macOS.zip"
 
       - name: Update Release Notes
         run: |
@@ -63,11 +86,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          COMMIT=$(git ls-remote https://github.com/celestiamobile/MobileCelestia ${{ inputs.branch }} | cut -f 1)
-          gh release create ${{ env.VERSION }} \
+          : "${VERSION:?Release version is required}"
+          : "${BUILD_COMMIT:?Build commit is required}"
+          test -s "$RUNNER_TEMP/Celestia_${VERSION}_macOS.zip"
+          gh release create "$VERSION" \
             --repo celestiamobile/MobileCelestia \
-            --target $COMMIT \
-            --title "${{ env.VERSION }}" \
+            --target "$BUILD_COMMIT" \
+            --title "$VERSION" \
             --notes-file release-notes-github-apple.txt \
             --draft \
-            $RUNNER_TEMP/Celestia_${{ env.VERSION }}_macOS.zip
+            "$RUNNER_TEMP/Celestia_${VERSION}_macOS.zip"
