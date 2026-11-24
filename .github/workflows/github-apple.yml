@@ -42,7 +42,7 @@ jobs:
       - name: Download macOS Sideload Build
         uses: actions/download-artifact@v4
         with:
-          name: macosx-developerID-openGL-product
+          name: macosx-developerID-angle-product
           run-id: ${{ env.RESOLVED_RUN_ID }}
           repository: celestiamobile/MobileCelestia
           github-token: ${{ secrets.GH_PAT }}
