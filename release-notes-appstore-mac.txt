@@ -1,9 +1,2 @@
-1. Improve lighting, stars, labels, model colors, textures, and planetary rings; add ACES and Reinhard tone mapping
-2. Fix camera jumps, shared links, date parsing, and script color settings
-3. Add comet 67P/Churyumov-Gerasimenko and distant objects 2026 ED138 and 2002 XV93
-4. Update star names and the exoplanet catalog
-5. Add recent searches; refresh time settings and improve menus, bookmarks, and translations
-6. Fix add-on updates, eclipse search cancellation, and game controller input
-7. Smooth animations and window resizing, improve closing, and localize the app name in Finder
-8. Fix purchase and subscription status updates
-9. Separate scene and overlay anti-aliasing; apply scene changes without restarting
+1. Fix colors in image overlays and script textures
+2. Update IAU star names, including Sawyqed and Shugi-Enmesharra
